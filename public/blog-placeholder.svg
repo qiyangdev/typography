@@ -1,0 +1,21 @@
+<svg width="960" height="540" viewBox="0 0 960 540" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Paper Light Placeholder</title>
+  <desc id="desc">A quiet paper-like placeholder image for article examples.</desc>
+  <defs>
+    <pattern id="grid" width="12" height="12" patternUnits="userSpaceOnUse">
+      <path d="M12 0H0V12" stroke="#1f2937" stroke-opacity="0.08" stroke-width="1"/>
+    </pattern>
+    <linearGradient id="ink" x1="160" y1="120" x2="800" y2="420" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#111827"/>
+      <stop offset="1" stop-color="#4b5563"/>
+    </linearGradient>
+  </defs>
+  <rect width="960" height="540" fill="#f7f3ea"/>
+  <rect width="960" height="540" fill="url(#grid)"/>
+  <path d="M146 132H814M146 408H814" stroke="#111827" stroke-opacity="0.2" stroke-width="2"/>
+  <text x="150" y="230" fill="url(#ink)" font-family="Georgia, 'Songti SC', serif" font-size="72" font-weight="700">纸上微光</text>
+  <text x="154" y="290" fill="#374151" font-family="Georgia, 'Songti SC', serif" font-size="30">把风声也写下来</text>
+  <text x="154" y="350" fill="#6b7280" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="22">Markdown / MDX Example</text>
+  <path d="M700 154V386" stroke="#111827" stroke-width="3"/>
+  <text x="730" y="160" fill="#111827" font-family="Georgia, 'Songti SC', serif" font-size="40" font-weight="700" writing-mode="vertical-rl">文章样张</text>
+</svg>
