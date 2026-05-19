@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   },
   description: site.description,
   icons: {
-    icon: "/favicon.svg",
+    icon: "/favicon.ico",
   },
   alternates: {
     types: {

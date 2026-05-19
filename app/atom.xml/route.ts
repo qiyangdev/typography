@@ -13,7 +13,7 @@ export function GET() {
     id: getSiteUrl(),
     link: getSiteUrl(),
     language: "zh-CN",
-    favicon: getSiteUrl("/favicon.svg"),
+    favicon: getSiteUrl("/favicon.ico"),
     copyright: `© ${new Date().getFullYear()} ${site.author.name}`,
     updated: updated ? toDate(updated) : new Date(),
     generator: "Next.js + feed",
