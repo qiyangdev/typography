@@ -12,6 +12,10 @@ It keeps the theme's vertical title treatment, paper-like grid background,
 restrained link interactions, and page transition feeling, while replacing the
 content and rendering pipeline with local MDX and the Next.js App Router.
 
+## Preview
+
+![Homepage preview](./docs/images/homepage.png)
+
 ## Features
 
 - App Router pages for the post index, pagination, post details, archive,

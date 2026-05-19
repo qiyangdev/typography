@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { translate } from "@/lib/i18n";
+import { site } from "@/lib/site";
 import { SocialIcon } from "@/components/social-icon";
 
 const navLinks = [
@@ -24,7 +25,7 @@ const navLinks = [
 const socialLinks = [
   {
     name: "github",
-    href: "https://github.com/qiyangdev",
+    href: site.social.github,
   },
   {
     name: "rss",
@@ -32,14 +33,14 @@ const socialLinks = [
   },
   {
     name: "x",
-    href: "https://x.com/qiyangdev",
+    href: site.social.x,
   },
 ] as const;
 
 export function SiteNavigation() {
   return (
     <nav className="flex flex-col gap-4 text-center font-bold">
-      <ul className="flex flex-row justify-center gap-2 text-[14px] leading-[21px] lg:flex-col lg:items-start lg:text-base lg:leading-6">
+      <ul className="flex flex-row justify-center gap-2 text-[14px] leading-5.25 lg:flex-col lg:items-start lg:text-base lg:leading-6">
         {navLinks.map((nav) => (
           <li key={nav.href}>
             <Link href={nav.href} className="inline-block">

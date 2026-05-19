@@ -11,6 +11,10 @@
 链接动效和页面切换气质，同时将内容与渲染流程替换为本地 MDX 和 Next.js App
 Router。
 
+## 预览
+
+![首页预览](./docs/images/homepage.png)
+
 ## 功能
 
 - App Router 路由：文章列表、分页、文章详情、归档、分类、关于页和 Atom Feed。

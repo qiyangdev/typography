@@ -4,11 +4,9 @@ import { PostPagination } from "@/components/pagination";
 import { PostMeta } from "@/components/post-meta";
 import { PostContent } from "@/lib/post-content";
 import { getPost, getPosts } from "@/lib/posts";
+import { site } from "@/lib/site";
 
 export const dynamicParams = false;
-
-const siteDescription =
-  "这里安放一些写下来的东西：技术、读书、生活、忽然冒出的念头，和那些暂时没有名字的片刻。文章不拘题材，像纸页接住风，也接住日常。";
 
 export function generateStaticParams() {
   return getPosts().map((post) => ({
@@ -28,7 +26,10 @@ export async function generateMetadata({
     return {};
   }
 
-  const description = post.data.description || siteDescription;
+  const description = post.data.description || site.description;
+  const encodedSlug = encodeURIComponent(post.id);
+  const ogImage = `/posts/${encodedSlug}/opengraph-image`;
+  const twitterImage = `/posts/${encodedSlug}/twitter-image`;
 
   return {
     title: post.data.title,
@@ -37,12 +38,24 @@ export async function generateMetadata({
       title: post.data.title,
       description,
       type: "article",
-      images: [post.data.banner ?? "/placeholder.png"],
+      images: [
+        {
+          url: post.data.banner ?? ogImage,
+          width: 1200,
+          height: 630,
+          alt: post.data.title,
+        },
+      ],
     },
     twitter: {
       title: post.data.title,
       description,
-      images: [post.data.banner ?? "/placeholder.png"],
+      images: [
+        {
+          url: post.data.banner ?? twitterImage,
+          alt: post.data.title,
+        },
+      ],
     },
   };
 }

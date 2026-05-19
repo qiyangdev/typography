@@ -5,17 +5,10 @@ import { SiteNavigation } from "@/components/site-navigation";
 import { SiteTitle } from "@/components/site-title";
 import { ThemeProvider } from "@/components/theme-provider";
 import { defaultLocale } from "@/lib/i18n";
+import { site } from "@/lib/site";
 import "katex/dist/katex.min.css";
 import "./globals.css";
 
-const site = {
-  title: "纸上微光",
-  description:
-    "这里安放一些写下来的东西：技术、读书、生活、忽然冒出的念头，和那些暂时没有名字的片刻。文章不拘题材，像纸页接住风，也接住日常。",
-  website: "https://blog.qiyang.dev/",
-};
-
-const twitterHandle = "@qiyangdev";
 const defaultTheme = "system";
 
 export const metadata: Metadata = {
@@ -38,15 +31,27 @@ export const metadata: Metadata = {
     description: site.description,
     url: site.website,
     type: "website",
-    images: ["/placeholder.png"],
+    images: [
+      {
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: site.title,
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    creator: twitterHandle,
-    site: twitterHandle,
+    creator: site.social.twitterHandle,
+    site: site.social.twitterHandle,
     title: site.title,
     description: site.description,
-    images: ["/placeholder.png"],
+    images: [
+      {
+        url: "/twitter-image",
+        alt: site.title,
+      },
+    ],
   },
 };
 

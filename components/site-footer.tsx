@@ -1,22 +1,11 @@
 import type { ReactNode } from "react";
+import { site } from "@/lib/site";
 
 const footer = {
-  site: {
-    title: "纸上微光",
-    website: "https://qiyang.dev/",
-  },
-  work: {
-    prefix: "白天在",
-    organization: {
-      name: "小米",
-      href: "https://www.mi.com/",
-    },
-    suffix: "写软件，也在日常里捡词句",
-  },
   build: {
-    prefix: "这个小站由",
-    suffix: "搭起，留给文字慢慢发光",
-    separator: "和",
+    prefix: "由",
+    suffix: "构建",
+    separator: "与",
     stack: [
       {
         name: "Next.js",
@@ -51,14 +40,8 @@ export function SiteFooter() {
   return (
     <div className="flex flex-col gap-2">
       <p className={lineClassName}>
-        © {year} <FooterLink href={footer.site.website}>{footer.site.title}</FooterLink>
-      </p>
-      <p className={lineClassName}>
-        {footer.work.prefix}
-        <FooterLink href={footer.work.organization.href}>
-          {footer.work.organization.name}
-        </FooterLink>
-        {footer.work.suffix}
+        © {year}{" "}
+        <FooterLink href={site.author.website}>{site.author.name}</FooterLink>
       </p>
       <p className={lineClassName}>
         {footer.build.prefix}{" "}

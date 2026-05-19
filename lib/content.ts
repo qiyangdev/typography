@@ -22,6 +22,8 @@ export function stripMarkup(source: string) {
   return source
     .replace(/```[\s\S]*?```/g, " ")
     .replace(/\$\$[\s\S]*?\$\$/g, " ")
+    .replace(/^\[\^[^\]]+\]:[^\n]*(?:\n[ \t]+[^\n]*)*/gm, " ")
+    .replace(/\[\^[^\]]+\]/g, "")
     .replace(/`([^`]+)`/g, "$1")
     .replace(/!\[([^\]]*)\]\([^)]+\)/g, "$1")
     .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")

@@ -207,6 +207,8 @@ svg {
 
 .prose pre {
   overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   margin-top: 24px;
   margin-bottom: 24px;
   border-radius: 6px;
@@ -216,6 +218,10 @@ svg {
   line-height: 24px;
   text-shadow: none;
   background: #282a36;
+}
+
+.prose pre::-webkit-scrollbar {
+  display: none;
 }
 
 .prose pre.shiki {
@@ -251,6 +257,41 @@ svg {
   font-size: 90%;
   text-shadow: none;
   background-color: #f9f2f4;
+}
+
+.prose kbd {
+  display: inline-block;
+  min-width: 1.6em;
+  border: 1px solid color-mix(in srgb, var(--site-primary), transparent 64%);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  padding: 1px 6px;
+  color: var(--site-primary);
+  font-family: var(--font-ui);
+  font-size: 0.85em;
+  font-weight: 700;
+  line-height: 1.35;
+  text-align: center;
+  vertical-align: 0.08em;
+  text-shadow: none;
+  background-color: color-mix(
+    in srgb,
+    var(--site-background),
+    var(--site-primary) 8%
+  );
+  box-shadow: 0 1px 0
+    color-mix(in srgb, var(--site-primary), transparent 84%);
+}
+
+:root.dark .prose kbd {
+  border-color: color-mix(in srgb, var(--site-primary), transparent 54%);
+  background-color: color-mix(
+    in srgb,
+    var(--site-background),
+    var(--site-primary) 10%
+  );
+  box-shadow: 0 1px 0
+    color-mix(in srgb, var(--site-primary), transparent 76%);
 }
 
 .prose img {
@@ -319,10 +360,16 @@ svg {
 
 .math-block {
   overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   border-left: 2px solid var(--site-primary);
   padding: 0.75rem 1rem;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   white-space: pre;
+}
+
+.math-block::-webkit-scrollbar {
+  display: none;
 }
 
 .math-inline {
