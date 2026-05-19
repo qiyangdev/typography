@@ -2,6 +2,8 @@
 
 [English](./README.md)
 
+[![使用 Vercel 部署](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fqiyangdev%2Ftypography)
+
 一个使用 Next.js 和 Tailwind CSS 构建的个人文章站。它偏重排版、阅读节奏和安静的
 发布流程，用来安放技术笔记、读书摘记、日常片段，以及其他值得留下的文字。
 
