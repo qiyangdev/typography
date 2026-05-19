@@ -312,6 +312,11 @@ svg {
   border-spacing: 0;
   table-layout: fixed;
   text-shadow: none;
+  background-color: color-mix(
+    in srgb,
+    var(--site-background),
+    var(--site-primary) 4%
+  );
 }
 
 .prose th {
@@ -324,7 +329,11 @@ svg {
   text-align: start;
   vertical-align: bottom;
   overflow-wrap: anywhere;
-  background-color: color-mix(in srgb, var(--site-primary), transparent 92%);
+  background-color: color-mix(
+    in srgb,
+    var(--site-background),
+    var(--site-primary) 10%
+  );
 }
 
 .prose th + th,
@@ -341,6 +350,19 @@ svg {
   text-align: start;
   vertical-align: baseline;
   overflow-wrap: anywhere;
+  background-color: color-mix(
+    in srgb,
+    var(--site-background),
+    var(--site-primary) 2%
+  );
+}
+
+.prose tbody tr:nth-child(even) td {
+  background-color: color-mix(
+    in srgb,
+    var(--site-background),
+    var(--site-primary) 5%
+  );
 }
 
 .prose tr:last-child td {
