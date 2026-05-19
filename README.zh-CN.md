@@ -1,21 +1,27 @@
-# 纸上微光
+# Typography for Next.js
 
 [English](./README.md)
 
-一个使用 Next.js 和 Tailwind CSS 搭起来的个人文章站。它偏重排版和阅读体验，用来安放技术笔记、读书摘记、日常片段，以及那些暂时还没有被归类的文字。
+一个使用 Next.js 和 Tailwind CSS 构建的个人文章站。它偏重排版、阅读节奏和安静的
+发布流程，用来安放技术笔记、读书摘记、日常片段，以及其他值得留下的文字。
 
-本项目基于 [sumimakito/hexo-theme-typography](https://github.com/sumimakito/hexo-theme-typography) 进行 Next.js + Tailwind CSS 复刻。它保留了原主题的纵向标题、纸页网格背景、克制的链接动效和页面切换气质，同时将内容与渲染流程替换为本地 MDX 和 Next.js App Router。
+本项目基于
+[sumimakito/hexo-theme-typography](https://github.com/sumimakito/hexo-theme-typography)
+进行 Next.js + Tailwind CSS 复刻。它保留了原主题的纵向标题、纸页网格背景、克制的
+链接动效和页面切换气质，同时将内容与渲染流程替换为本地 MDX 和 Next.js App
+Router。
 
-## 当前能力
+## 功能
 
 - App Router 路由：文章列表、分页、文章详情、归档、分类、关于页和 Atom Feed。
-- 本地 MDX 内容：文章放在 `content/posts`，支持 frontmatter、GFM、LaTeX 和代码块。
+- 本地 MDX 内容：文章放在 `content/posts`，支持 frontmatter、GFM、LaTeX 和代码
+  块。
 - 代码高亮：使用 Shiki，并跟随浅色/深色主题切换。
 - 数学公式：使用 `remark-math` 与 `rehype-katex` 渲染 LaTeX。
 - 主题切换：使用 `next-themes`，默认跟随系统主题。
 - 动态分类：直接从文章 frontmatter 收集分类，不需要额外维护映射表。
 - 中文 slug：文章路径可以使用中文，URL 编码后也能正常匹配。
-- 轻量页面切换动画，尽量贴近原主题的浏览感受。
+- 轻量页面切换动画，贴近原主题的浏览感受。
 
 ## Run
 
@@ -27,16 +33,17 @@ bun run dev
 
 ## Content
 
-文章放在 `content/posts`，文件格式为 `.mdx`。关于页直接写在 `app/about/page.tsx`，不再从 Markdown 文件加载。
+文章放在 `content/posts`，文件格式为 `.mdx`。关于页直接写在
+`app/about/page.tsx`，不再从 Markdown 文件加载。
 
-文章 frontmatter 示例：
+frontmatter 示例：
 
 ```mdx
 ---
-title: 你好，世界
+title: Hello, World
 pubDate: 2026-05-18
-categories: ["示例文章"]
-description: "给这个小站留下的第一声问候。"
+categories: ["Examples"]
+description: "A first note for this site."
 slug: hello-world
 draft: false
 pin: false
@@ -57,7 +64,8 @@ pin: false
 
 ## Internationalization
 
-文案字典在 `lib/i18n.ts`。当前默认语言是 `zh-cn`，可通过修改 `defaultLocale` 切换。
+文案字典在 `lib/i18n.ts`。当前默认语言是 `zh-cn`，可通过修改 `defaultLocale` 切
+换。
 
 已内置语言：`zh-cn`、`en-us`、`zh-tw`、`ja-jp`、`it-it`。
 
