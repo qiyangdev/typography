@@ -69,7 +69,8 @@ Fields:
 - `categories`: Category list. Category pages are generated automatically.
 - `description`: Optional summary for indexes and metadata. When missing, it is
   extracted from the post body.
-- `slug`: Optional post path. When missing, it is generated from the title.
+- `slug`: Optional post path override. When missing, it is generated from the
+  MDX file name.
 - `draft`: Optional. `draft: true` posts are hidden in production.
 - `pin`: Optional. Pinned posts are shown earlier on the home page.
 - `banner`: Optional image for Open Graph and Twitter metadata.

@@ -147,8 +147,9 @@ function readPostDirectory(directory: string) {
 
 function toPost(entry: ReturnType<typeof readPostDirectory>[number]): Post {
   const { parsed, fileName } = entry;
-  const title = asString(parsed.data.title, fileName.replace(/\.mdx$/, ""));
-  const id = asString(parsed.data.slug, slugify(title));
+  const fileNameWithoutExtension = path.parse(fileName).name;
+  const title = asString(parsed.data.title, fileNameWithoutExtension);
+  const id = asString(parsed.data.slug, slugify(fileNameWithoutExtension));
 
   return {
     id,

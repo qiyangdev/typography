@@ -63,7 +63,7 @@ pin: false
 - `modDate`：可选，更新日期；存在时文章元信息显示“更新于”。
 - `categories`：分类数组，分类页会自动生成。
 - `description`：可选，列表页和元信息描述；缺省时从正文截取。
-- `slug`：可选，文章路径；不写时会从标题生成。
+- `slug`：可选，文章路径覆盖值；不写时会从 MDX 文件名生成。
 - `draft`：可选，生产环境会隐藏 `draft: true` 的文章。
 - `pin`：可选，置顶文章会在首页靠前显示。
 - `banner`：可选，用于 Open Graph / Twitter 图片。
