@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { PageTransition } from "@/components/page-transition";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteNavigation } from "@/components/site-navigation";
+import { ThemeKeyboardShortcut } from "@/components/theme-keyboard-shortcut";
 import { SiteTitle } from "@/components/site-title";
 import { ThemeProvider } from "@/components/theme-provider";
 import { defaultLocale } from "@/lib/i18n";
@@ -73,6 +74,7 @@ export default function RootLayout({
           enableSystem
           storageKey="typography-theme"
         >
+          <ThemeKeyboardShortcut />
           <PageTransition />
           <header className="transition-swup-header m-7.5 flex flex-col gap-2.5 lg:col-[2/3] lg:row-[1/2] lg:mx-0 lg:mb-4 lg:mt-20 lg:items-start lg:justify-between">
             <SiteTitle />
