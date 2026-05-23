@@ -9,9 +9,6 @@ interface PostMetaProps {
 }
 
 export function PostMeta({ post, linkedTitle = true }: PostMetaProps) {
-  const date = post.data.modDate ?? post.data.pubDate;
-  const label = post.data.modDate ? "updated_at" : "posted_at";
-
   return (
     <header className="flex flex-col gap-2">
       <h1 className="post-title">
@@ -24,9 +21,17 @@ export function PostMeta({ post, linkedTitle = true }: PostMetaProps) {
         )}
       </h1>
       <div className="text-[14px] leading-[24.5px]">
-        <span>{translate(label)}</span>
+        <span>{translate("posted_at")}</span>
         {" "}
-        <time dateTime={date}>{formatDate(date)}</time>
+        <time dateTime={post.data.pubDate}>{formatDate(post.data.pubDate)}</time>
+        {post.data.modDate ? (
+          <>
+            {" "}
+            <span>{translate("updated_at")}</span>
+            {" "}
+            <time dateTime={post.data.modDate}>{formatDate(post.data.modDate)}</time>
+          </>
+        ) : null}
         {" "}
         {post.data.categories.map((category) => (
           <PostCategory key={category} category={category} />

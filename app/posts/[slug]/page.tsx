@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { BackLink } from "@/components/back-link";
 import { PostPagination } from "@/components/pagination";
 import { PostMeta } from "@/components/post-meta";
 import { PostToc } from "@/components/post-toc";
 import { PostContent } from "@/lib/post-content";
+import { translate } from "@/lib/i18n";
 import { getPost, getPosts } from "@/lib/posts";
 import { site } from "@/lib/site";
 
@@ -76,7 +78,10 @@ export default async function PostPage({
   return (
     <>
       <article className="prose">
-        <PostMeta post={post} />
+        <div className="mb-3 text-[14px] leading-[24.5px]">
+          <BackLink>{translate("back")}</BackLink>
+        </div>
+        <PostMeta post={post} linkedTitle={false} />
         <PostToc headings={post.headings} />
         <div>
           <PostContent post={post} />

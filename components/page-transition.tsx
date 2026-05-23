@@ -4,6 +4,12 @@ import { usePathname, useRouter } from "next/navigation";
 import { MouseEvent, useEffect, useRef } from "react";
 
 const transitionDuration = 500;
+const previousUrlStorageKey = "typography:previous-url";
+const targetUrlStorageKey = "typography:target-url";
+
+type PageTransitionNavigateDetail =
+  | { type: "back" }
+  | { type: "push"; href: string };
 
 export function PageTransition() {
   const pathname = usePathname();
@@ -26,6 +32,18 @@ export function PageTransition() {
   }, []);
 
   useEffect(() => {
+    function handleTransitionNavigation(event: Event) {
+      const { detail } = event as CustomEvent<PageTransitionNavigateDetail>;
+
+      if (detail.type === "back") {
+        startTransition(() => router.back());
+        return;
+      }
+
+      recordReturnTarget(detail.href);
+      startTransition(() => router.push(detail.href));
+    }
+
     function handleClick(event: globalThis.MouseEvent) {
       if (event.defaultPrevented || event.button !== 0 || hasModifierKey(event)) {
         return;
@@ -49,7 +67,9 @@ export function PageTransition() {
       }
 
       event.preventDefault();
-      startTransition(() => router.push(`${url.pathname}${url.search}${url.hash}`));
+      const href = `${url.pathname}${url.search}${url.hash}`;
+      recordReturnTarget(href);
+      startTransition(() => router.push(href));
     }
 
     function startTransition(navigate: () => void) {
@@ -71,9 +91,14 @@ export function PageTransition() {
       }, transitionDuration);
     }
 
+    document.addEventListener("page-transition:navigate", handleTransitionNavigation);
     document.addEventListener("click", handleClick, true);
 
     return () => {
+      document.removeEventListener(
+        "page-transition:navigate",
+        handleTransitionNavigation,
+      );
       document.removeEventListener("click", handleClick, true);
       if (fallbackTimer.current) {
         window.clearTimeout(fallbackTimer.current);
@@ -126,4 +151,14 @@ function shouldAnimateLink(anchor: HTMLAnchorElement) {
 
   const url = new URL(anchor.href);
   return url.origin === window.location.origin;
+}
+
+function recordReturnTarget(href: string) {
+  try {
+    const targetUrl = new URL(href, window.location.href);
+    window.sessionStorage.setItem(previousUrlStorageKey, window.location.href);
+    window.sessionStorage.setItem(targetUrlStorageKey, targetUrl.href);
+  } catch {
+    // sessionStorage can be unavailable in restricted browser contexts.
+  }
 }

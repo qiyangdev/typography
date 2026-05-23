@@ -9,7 +9,12 @@ const nextConfig: NextConfig = {
 const withMDX = createMDX({
   extension: /\.mdx?$/,
   options: {
-    remarkPlugins: ["remark-frontmatter", "remark-gfm", "remark-math"],
+    remarkPlugins: [
+      "remark-frontmatter",
+      path.join(process.cwd(), "lib/remark-cjk-soft-breaks.mjs"),
+      "remark-gfm",
+      "remark-math",
+    ],
     rehypePlugins: [
       "rehype-katex",
       path.join(process.cwd(), "lib/rehype-heading-ids.mjs"),

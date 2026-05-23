@@ -353,6 +353,28 @@ svg {
   background: transparent;
 }
 
+.mermaid-figure {
+  display: flex;
+  overflow: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  flex-direction: column;
+  align-items: stretch;
+  margin-top: 24px;
+  margin-bottom: 24px;
+  border: 1px solid color-mix(in srgb, var(--site-primary), transparent 78%);
+  border-radius: 6px;
+  padding: 16px;
+  color: var(--site-primary);
+  text-align: center;
+  text-shadow: none;
+  background-color: color-mix(
+    in srgb,
+    var(--site-background),
+    var(--site-primary) 3%
+  );
+}
+
 .mermaid-chart {
   overflow-x: auto;
   scrollbar-width: none;
@@ -370,6 +392,28 @@ svg {
     var(--site-background),
     var(--site-primary) 3%
   );
+}
+
+.mermaid-figure .mermaid-chart {
+  width: 100%;
+  margin: 0;
+  border: 0;
+  padding: 0;
+  background: transparent;
+}
+
+.prose .mermaid-figure .mermaid-caption {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  color: color-mix(in srgb, var(--site-primary), transparent 42%);
+  font-size: 12px;
+  line-height: 20px;
+  text-align: center;
+}
+
+.mermaid-figure::-webkit-scrollbar {
+  display: none;
 }
 
 .mermaid-chart::-webkit-scrollbar {
