@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PostPagination } from "@/components/pagination";
 import { PostMeta } from "@/components/post-meta";
+import { PostToc } from "@/components/post-toc";
 import { PostContent } from "@/lib/post-content";
 import { getPost, getPosts } from "@/lib/posts";
 import { site } from "@/lib/site";
@@ -76,6 +77,7 @@ export default async function PostPage({
     <>
       <article className="prose">
         <PostMeta post={post} />
+        <PostToc headings={post.headings} />
         <div>
           <PostContent post={post} />
         </div>

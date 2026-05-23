@@ -5,6 +5,7 @@
   --site-primary: #2e405b;
   --site-background: #ffffff;
   --site-shadow: #0000000a;
+  interpolate-size: allow-keywords;
 }
 
 :root.dark {
@@ -159,6 +160,108 @@ svg {
   font-size: 1.25rem;
   font-weight: 700;
   line-height: 1.875rem;
+}
+
+.prose h2,
+.prose h3 {
+  scroll-margin-top: 24px;
+}
+
+.prose .post-toc {
+  margin-top: 28px;
+  margin-bottom: 36px;
+  color: color-mix(in srgb, var(--site-primary), transparent 10%);
+  font-size: 14px;
+  line-height: 22px;
+  text-shadow: none;
+}
+
+.prose .post-toc summary {
+  position: relative;
+  width: fit-content;
+  margin: 0;
+  padding-left: 18px;
+  color: var(--site-primary);
+  font-weight: 700;
+  line-height: 22px;
+  list-style: none;
+  cursor: pointer;
+}
+
+.prose .post-toc details {
+  position: relative;
+}
+
+.prose .post-toc details::before {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  left: 0;
+  width: 2px;
+  background-color: var(--site-primary);
+  content: "";
+}
+
+.prose .post-toc summary::-webkit-details-marker {
+  display: none;
+}
+
+.prose .post-toc details[open] summary {
+  margin-bottom: 8px;
+}
+
+.prose .post-toc details::details-content {
+  overflow: clip;
+  block-size: 0;
+  opacity: 0;
+  transition:
+    block-size 320ms ease,
+    content-visibility 320ms ease allow-discrete,
+    opacity 220ms ease;
+}
+
+.prose .post-toc details[open]::details-content {
+  block-size: auto;
+  opacity: 1;
+}
+
+.prose .post-toc ol {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0 0 0 18px;
+  list-style: none;
+}
+
+.prose .post-toc-list {
+  position: relative;
+  width: 100%;
+}
+
+.prose .post-toc-list::before {
+  content: none;
+}
+
+.prose .post-toc li {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 28px;
+  margin: 0;
+  padding-left: 0;
+  line-height: 22px;
+}
+
+.prose .post-toc li[data-level="3"] {
+  margin-left: 12px;
+  padding-left: 0;
+  font-size: 13px;
+}
+
+.prose .post-toc a {
+  display: inline;
+  padding: 1px 2px;
+  text-decoration-thickness: 0.08em;
 }
 
 .prose p {
@@ -444,10 +547,21 @@ svg {
 }
 
 .transition-swup-main {
+  scroll-behavior: smooth;
   transition-duration: 0.5s;
   transition-timing-function: linear;
   transform: translateY(0);
   opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .transition-swup-main {
+    scroll-behavior: auto;
+  }
+
+  .prose .post-toc details::details-content {
+    transition: none;
+  }
 }
 
 html.is-animating .transition-swup-main {

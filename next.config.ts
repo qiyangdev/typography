@@ -12,6 +12,7 @@ const withMDX = createMDX({
     remarkPlugins: ["remark-frontmatter", "remark-gfm", "remark-math"],
     rehypePlugins: [
       "rehype-katex",
+      path.join(process.cwd(), "lib/rehype-heading-ids.mjs"),
       path.join(process.cwd(), "lib/rehype-mermaid.mjs"),
       [
         "@shikijs/rehype",

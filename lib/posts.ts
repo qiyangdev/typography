@@ -6,6 +6,7 @@ export interface Post {
   id: string;
   fileName: string;
   body: string;
+  headings: PostHeading[];
   data: {
     title: string;
     pubDate: string;
@@ -17,6 +18,12 @@ export interface Post {
     banner?: string;
     slug?: string;
   };
+}
+
+export interface PostHeading {
+  id: string;
+  level: 2 | 3;
+  text: string;
 }
 
 interface GetPostsOptions {
@@ -155,6 +162,7 @@ function toPost(entry: ReturnType<typeof readPostDirectory>[number]): Post {
     id,
     fileName,
     body: parsed.body,
+    headings: extractPostHeadings(parsed.body),
     data: {
       title,
       pubDate: asString(parsed.data.pubDate, ""),
@@ -185,7 +193,56 @@ function asOptionalBoolean(value: unknown) {
   return typeof value === "boolean" ? value : undefined;
 }
 
-function slugify(value: string) {
+function extractPostHeadings(source: string): PostHeading[] {
+  const headings: PostHeading[] = [];
+  const counts = new Map<string, number>();
+  let inFence = false;
+
+  for (const line of source.split("\n")) {
+    if (/^\s*(```|~~~)/.test(line)) {
+      inFence = !inFence;
+      continue;
+    }
+
+    if (inFence) {
+      continue;
+    }
+
+    const match = line.match(/^(##|###)\s+(.+)$/);
+
+    if (!match) {
+      continue;
+    }
+
+    const text = cleanHeadingText(match[2]);
+
+    if (!text) {
+      continue;
+    }
+
+    headings.push({
+      id: uniqueSlug(text, counts),
+      level: match[1].length as 2 | 3,
+      text,
+    });
+  }
+
+  return headings;
+}
+
+function cleanHeadingText(value: string) {
+  return stripMarkup(value.replace(/\s+\{#[A-Za-z0-9_-]+\}\s*$/, "")).trim();
+}
+
+function uniqueSlug(value: string, counts: Map<string, number>) {
+  const base = slugify(value) || "section";
+  const count = counts.get(base) ?? 0;
+  counts.set(base, count + 1);
+
+  return count === 0 ? base : `${base}-${count + 1}`;
+}
+
+export function slugify(value: string) {
   return value
     .trim()
     .toLowerCase()
