@@ -250,6 +250,44 @@ svg {
   background: transparent;
 }
 
+.mermaid-chart {
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  margin-top: 24px;
+  margin-bottom: 24px;
+  border: 1px solid color-mix(in srgb, var(--site-primary), transparent 78%);
+  border-radius: 6px;
+  padding: 16px;
+  color: var(--site-primary);
+  text-align: center;
+  text-shadow: none;
+  background-color: color-mix(
+    in srgb,
+    var(--site-background),
+    var(--site-primary) 3%
+  );
+}
+
+.mermaid-chart::-webkit-scrollbar {
+  display: none;
+}
+
+.mermaid-chart svg {
+  display: inline-block;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+}
+
+.mermaid-chart[data-mermaid-error="true"] {
+  color: #c7254e;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 14px;
+  line-height: 24px;
+  background-color: #f9f2f4;
+}
+
 .prose :where(:not(pre) > code) {
   border-radius: 0.25rem;
   padding: 2px 4px;

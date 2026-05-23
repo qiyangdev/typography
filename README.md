@@ -22,10 +22,11 @@ content and rendering pipeline with local MDX and the Next.js App Router.
 
 - App Router pages for the post index, pagination, post details, archive,
   categories, about page, and Atom feed.
-- Local MDX posts in `content/posts` with frontmatter, GFM, LaTeX, and fenced
-  code blocks.
+- Local MDX posts in `content/posts` with frontmatter, GFM, LaTeX, Mermaid, and
+  fenced code blocks.
 - Shiki-powered code highlighting with light and dark themes.
 - LaTeX rendering through `remark-math` and `rehype-katex`.
+- Mermaid diagrams from fenced `mermaid` code blocks.
 - Dark mode through `next-themes`, defaulting to the system preference.
 - Dynamic categories collected from post frontmatter, without a separate
   category map.

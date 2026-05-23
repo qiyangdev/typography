@@ -1,5 +1,6 @@
 import createMDX from "@next/mdx";
 import type { NextConfig } from "next";
+import path from "node:path";
 
 const nextConfig: NextConfig = {
   pageExtensions: ["js", "jsx", "md", "mdx", "ts", "tsx"],
@@ -11,6 +12,7 @@ const withMDX = createMDX({
     remarkPlugins: ["remark-frontmatter", "remark-gfm", "remark-math"],
     rehypePlugins: [
       "rehype-katex",
+      path.join(process.cwd(), "lib/rehype-mermaid.mjs"),
       [
         "@shikijs/rehype",
         {

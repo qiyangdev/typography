@@ -1,6 +1,6 @@
+import { MermaidRuntime } from "@/components/mermaid-runtime";
 import type { Post } from "@/lib/posts";
 import type { MDXContent } from "mdx/types";
-import { createElement } from "react";
 
 interface PostContentProps {
   post: Pick<Post, "fileName">;
@@ -15,5 +15,10 @@ export async function PostContent({ post }: PostContentProps) {
     `@/content/posts/${post.fileName}`
   )) as PostContentModule;
 
-  return createElement(Content);
+  return (
+    <>
+      <Content />
+      <MermaidRuntime />
+    </>
+  );
 }

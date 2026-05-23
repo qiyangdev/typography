@@ -20,10 +20,11 @@ Router。
 ## 功能
 
 - App Router 路由：文章列表、分页、文章详情、归档、分类、关于页和 Atom Feed。
-- 本地 MDX 内容：文章放在 `content/posts`，支持 frontmatter、GFM、LaTeX 和代码
-  块。
+- 本地 MDX 内容：文章放在 `content/posts`，支持 frontmatter、GFM、LaTeX、
+  Mermaid 和代码块。
 - 代码高亮：使用 Shiki，并跟随浅色/深色主题切换。
 - 数学公式：使用 `remark-math` 与 `rehype-katex` 渲染 LaTeX。
+- Mermaid 图表：通过 fenced `mermaid` 代码块渲染。
 - 主题切换：使用 `next-themes`，默认跟随系统主题。
 - 动态分类：直接从文章 frontmatter 收集分类，不需要额外维护映射表。
 - 中文 slug：文章路径可以使用中文，URL 编码后也能正常匹配。
