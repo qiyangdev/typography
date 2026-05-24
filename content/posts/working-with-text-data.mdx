@@ -1,0 +1,451 @@
+---
+title: 文本如何进入模型
+pubDate: 2026-05-24
+categories: ["《Build a Large Language Model》阅读笔记"]
+description: "基于《Build a Large Language Model (From Scratch)》第 2 章，梳理原始文本如何变成 token、token ID、embedding、位置编码和训练样本，并补充今天看 tokenizer、长上下文与位置编码时需要修正的地方。"
+---
+
+第 2 章从一个基础问题讲起：文字到底怎样进入模型？
+
+LLM 并不是直接“读”中文、英文或代码。模型接收到的是一串整数；这些整数再通过
+embedding layer 查表，变成一组向量，最后才送进 Transformer。训练还没开始，输入已
+经先被 tokenizer、词表、特殊 token、采样方式和位置编码塑形了一遍。
+
+这一章的路线很朴素，也很适合从零实现：先用正则表达式写一个最简单的 tokenizer，把
+文本切成 token；再把 token 映射成 token ID；然后加入特殊 token；接着换成 GPT-2 风
+格的 BPE tokenizer；最后用滑动窗口生成 next-token prediction 所需的输入和目标，并
+把 token ID 转成 token embedding 与 positional embedding。
+
+这一步常被归到“预处理”，但从研究角度看，它已经是 LLM 的第一层建模选择。
+
+```mermaid title="图 1：第二章的输入处理主线。"
+flowchart LR
+    Raw["原始文本"]
+    Tok["Tokenization"]
+    ID["Token IDs"]
+    Sample["滑动窗口采样"]
+    Emb["Token embeddings"]
+    Pos["Position encoding"]
+    Input["Transformer 输入"]
+    Target["右移一位的训练目标"]
+
+    Raw --> Tok --> ID --> Sample --> Emb --> Input
+    Sample --> Target
+    Pos --> Input
+```
+
+## 文本输入分三层处理
+
+书里的几段 Python 代码，服务于一个清晰的拆解：文本输入可以分成三层来看。
+
+- **符号层**：把字符串切成 token。token 可能是词、子词、标点、空白、字节片段，也可
+  能是特殊控制符。
+- **索引层**：把每个 token 映射到一个整数 ID。词表就是这张映射表。
+- **向量层**：用 embedding layer 把 token ID 查成向量，再补上位置信息。
+
+如果只把 tokenizer 看成“切词工具”，会漏掉很多实际影响。它规定了模型和文本世界之
+间的接口：词表多大、怎样切分、是否保留空格和换行、怎样处理中文和代码、哪些符号被
+当成特殊 token，都会改变模型看到的输入，也会改变训练和推理成本。
+
+第 2 章的好处是，它没有一开始就把读者丢进复杂的数据管线，而是用
+`SimpleTokenizerV1`、`SimpleTokenizerV2` 和 PyTorch `Dataset` 拼出一个最小闭环：
+文本进来，`x` 是一段 token ID，`y` 是同一段序列向右错开一位。语言模型的预训练任
+务，就从这个简单的右移里长出来。
+
+原书里的图很适合改写成流程图。第 2 章真正反复出现的是同一条路径：原始文本不能直
+接喂给神经网络，必须先被切成 token，再变成 token ID，最后查表得到向量。
+
+```mermaid title="图 2：原始输入必须先变成向量。"
+flowchart LR
+    subgraph Raw["原始数据"]
+        Video["视频"]
+        Audio["音频"]
+        Text["文本"]
+    end
+
+    Video --> VModel["视频 embedding 模型"] --> VVec["视频向量"]
+    Audio --> AModel["音频 embedding 模型"] --> AVec["音频向量"]
+    Text --> TModel["文本 embedding 模型"] --> TVec["文本向量"]
+
+    VVec --> NN["神经网络"]
+    AVec --> NN
+    TVec --> NN
+```
+
+## Token 不等于单词
+
+原文为了方便理解，经常使用 “word prediction” 这样的说法。今天再读，我会在脑子里
+自动把它改成 **next-token prediction**。现代 LLM 预测的通常不是自然语言意义上的
+“词”，而是 tokenizer 产出的 token。
+
+这会影响很多具体问题：
+
+- 英文里，一个常见单词可能刚好是一个 token，也可能被切成几个子词。
+- 中文、日文、韩文和代码混排文本里，token 边界往往和“词”没有简单对应关系。
+- 空格、换行、缩进、标点、控制符，可能单独成 token，也可能被并到相邻 token 里。
+- API 计费、上下文长度、KV cache、延迟和训练 FLOPs，看的都是 token 或由 token 决定
+  的序列长度，不是自然语言里的词数。
+
+书里那个正则表达式 tokenizer 只能当教学脚手架。它让我们看清“切分、建表、编码、解
+码”这几步，但不能误以为真实模型也是靠这种方式处理文本。
+
+原书先用正则表达式实现最小 tokenizer。重要的不是这个正则本身，而是它把三件事拆开
+了：分隔文本、清理空白、保留标点。
+
+```python
+import re
+
+text = "Hello, world. Is this-- a test?"
+tokens = re.split(r'([,.:;?_!"()\']|--|\s)', text)
+tokens = [item.strip() for item in tokens if item.strip()]
+
+print(tokens)
+# ['Hello', ',', 'world', '.', 'Is', 'this', '--', 'a', 'test', '?']
+```
+
+## 词表只是索引表
+
+第 2.3 节用一篇短篇小说构造词表：先找出所有不重复的 token，排序，然后给每个 token
+分配一个整数 ID。这个例子很小，却能说明词表的角色：词表不是语言本身，它只是训练语
+料里可被模型识别的一张索引表。
+
+问题也很快出现了。如果新文本里有词表没见过的 token，最朴素的查表会直接失败。
+
+原文用 `SimpleTokenizerV2` 加入两个特殊 token：
+
+- `"<|unk|>"`：表示词表外 token。
+- `"<|endoftext|>"`：表示独立文档之间的边界。
+
+加入这两个 token 后，tokenizer 开始承担“序列协议”的角色。模型除了文本内容，还要
+处理文档边界、padding、用户问题、助手回答、工具调用，甚至系统级控制信息。
+
+现代 GPT 风格 tokenizer 通常不会靠 `"<|unk|>"` 来兜底未知词。BPE、WordPiece 或
+SentencePiece 这类子词 tokenizer 会把没见过的词继续拆小，直到能用已有单元表示。
+这解决了“词表外”问题，但也带来新的代价：低频语言、拼写错误、专有名词、URL、代码
+片段常常会被切得很碎，于是同样一段信息会占用更多 token。
+
+```mermaid title="图 3：词表把 token 映射成整数。"
+flowchart LR
+    Text["训练文本\nThe quick brown fox"]
+    Tok["Tokenization\nThe / quick / brown / fox"]
+    Vocab["Vocabulary\nbrown -> 0\ndog -> 1\nfox -> 2\nquick -> 6\nThe -> 7"]
+    Ids["Token IDs\n7 / 6 / 0 / 2"]
+
+    Text --> Tok --> Vocab --> Ids
+```
+
+`SimpleTokenizerV1` 的核心就是两个表：`str_to_int` 用于 encode，`int_to_str` 用于
+decode。`SimpleTokenizerV2` 只是在 encode 前多做一步：把不在词表里的 token 替换成
+`"<|unk|>"`。
+
+```python
+class SimpleTokenizerV2:
+    def __init__(self, vocab):
+        self.str_to_int = vocab
+        self.int_to_str = {i: s for s, i in vocab.items()}
+
+    def encode(self, text):
+        tokens = re.split(r'([,.:;?_!"()\']|--|\s)', text)
+        tokens = [item.strip() for item in tokens if item.strip()]
+        tokens = [
+            item if item in self.str_to_int else "<|unk|>"
+            for item in tokens
+        ]
+        return [self.str_to_int[token] for token in tokens]
+
+    def decode(self, ids):
+        text = " ".join(self.int_to_str[i] for i in ids)
+        return re.sub(r'\s+([,.:;?!"()\'])', r'\1', text)
+```
+
+```mermaid title="图 4：encode 和 decode 使用相反方向的词表。"
+flowchart LR
+    Raw["文本\nThe brown dog"]
+    Tokens["Tokens\nThe / brown / dog"]
+    Vocab["Vocabulary"]
+    Ids["IDs\n7 / 0 / 1"]
+    Inv["Inverse vocabulary"]
+    Out["文本\nThe brown dog"]
+
+    Raw --> Tokens --> Vocab --> Ids
+    Ids --> Inv --> Out
+```
+
+```mermaid title="图 5：独立文档之间用边界 token 隔开。"
+flowchart LR
+    D1["文档 A\n... overtime victory."]
+    Sep1["<|endoftext|>"]
+    D2["文档 B\nElara and Finn ..."]
+    Sep2["<|endoftext|>"]
+    D3["文档 C\nThe Dow Jones ..."]
+    Stream["拼接后的训练流"]
+
+    D1 --> Sep1 --> D2 --> Sep2 --> D3 --> Stream
+```
+
+## 不要再用 `gpt2` 估算所有模型
+
+第 2.5 节切到 `tiktoken.get_encoding("gpt2")`，用它来演示 GPT-2/GPT-3 时代的 BPE
+tokenizer。放在教材里，这个选择很顺手：词表大小、特殊 token、历史背景都比较清楚，
+读者也容易复现。
+
+但放到今天看，`gpt2` encoding 已经不能代表当前 OpenAI 模型的默认
+tokenizer。按 `tiktoken` 现在的模型映射，`gpt-4.1`、`gpt-4o` 和更新的 `gpt-5` 系列
+使用 `o200k_base`，GPT-4 和 GPT-3.5 系列则使用 `cl100k_base`。所以在估算 token
+数量、裁剪上下文、设计缓存 key 或复现 API 行为时，不能再拿 `gpt2` 当万能近似。
+
+BPE 的基本优势并没有过时。OpenAI 的 `tiktoken` 文档仍然强调 BPE 的几个实用特点：
+可逆、能处理任意文本、能把字节序列压缩成较短 token 序列，也会让模型更多看到常见子
+词。BPE 不是什么语义完美的切词器，它是一套足够快、足够稳定、足够可逆的序列化协
+议。
+
+它的局限也很具体：
+
+- **不同语言不一定公平**：同样信息量的中文、英文、代码、emoji，可能会被切成差异很
+  大的 token 数。
+- **边界不等于语义边界**：BPE 的合并主要由频率决定，不保证符合语言学意义上的“词”。
+- **上下文窗口不是免费空间**：文本被切得越碎，注意力计算、KV cache 和延迟压力就越
+  大。
+- **tokenizer 版本会带来偏差**：如果训练、检索、评估和线上推理使用不同 tokenizer，
+  长度估算和截断策略会出错。
+
+近两年的 tokenizer-free 研究也在逼近这个问题。例如 Byte Latent Transformer 直接在字
+节层建模，用动态 patch 作为主要计算单元，并报告了在固定推理成本下优于传统
+tokenization 模型的扩展趋势。这不等于“BPE 已经过时”。固定词表的子词 tokenizer 仍
+然是主流工程默认方案；字节级、tokenizer-free 模型则是正在变得更有竞争力的研究方
+向。
+
+## 用滑动窗口生成训练样本
+
+第 2.6 节开始构造训练样本。原文用 `max_length` 和 `stride` 把一段长 token 序列切
+成多个训练样本：
+
+```text
+input:  [t0, t1, t2, t3]
+target: [t1, t2, t3, t4]
+```
+
+这就是自回归语言模型最基本的训练样本。模型在每个位置预测下一个 token。上下文越
+长，模型可利用的信息越多，但训练和推理成本也越高。
+
+`stride` 控制窗口每次向前移动多少。`stride=1` 会产生大量重叠样本，数据利用更密集，
+但样本之间相关性也更强；`stride=max_length` 则没有重叠，更省，但样本边界更硬。这
+个解释今天仍然成立。
+
+```mermaid title="图 6：输入和目标只相差一位。"
+flowchart TB
+    Text["token 序列\nt0 t1 t2 t3 t4"]
+    X["input_ids\nt0 t1 t2 t3"]
+    Y["target_ids\nt1 t2 t3 t4"]
+
+    Text --> X
+    Text --> Y
+```
+
+```mermaid title="图 7：stride 控制窗口移动幅度。"
+flowchart TB
+    subgraph S1["stride = 1"]
+        A1["batch 1: In the heart of"]
+        A2["batch 2: the heart of the"]
+        A1 --> A2
+    end
+
+    subgraph S4["stride = 4"]
+        B1["batch 1: In the heart of"]
+        B2["batch 2: the city stood the"]
+        B1 --> B2
+    end
+```
+
+这一节最重要的代码是 `Dataset`。下面是原书思路的等价最小版本：先把全文编码成
+`token_ids`，再用滑动窗口切出 `input_chunk` 和右移一位的 `target_chunk`。
+
+```python
+import torch
+from torch.utils.data import Dataset, DataLoader
+
+class GPTDatasetV1(Dataset):
+    def __init__(self, text, tokenizer, max_length, stride):
+        token_ids = tokenizer.encode(text)
+        self.input_ids = []
+        self.target_ids = []
+
+        for i in range(0, len(token_ids) - max_length, stride):
+            input_chunk = token_ids[i : i + max_length]
+            target_chunk = token_ids[i + 1 : i + max_length + 1]
+            self.input_ids.append(torch.tensor(input_chunk))
+            self.target_ids.append(torch.tensor(target_chunk))
+
+    def __len__(self):
+        return len(self.input_ids)
+
+    def __getitem__(self, index):
+        return self.input_ids[index], self.target_ids[index]
+
+def create_dataloader_v1(
+    text,
+    tokenizer,
+    batch_size=4,
+    max_length=256,
+    stride=128,
+    shuffle=True,
+    drop_last=True,
+):
+    dataset = GPTDatasetV1(text, tokenizer, max_length, stride)
+    return DataLoader(
+        dataset,
+        batch_size=batch_size,
+        shuffle=shuffle,
+        drop_last=drop_last,
+    )
+```
+
+只是，真实预训练管线会在这个最小实现之上再加很多层：
+
+- **文档打包**：把多个短文档塞进固定长度序列，减少 padding 浪费。
+- **边界处理**：跨文档拼接时，用边界 token 和 loss mask 避免模型把无关文档误当成连
+  续上下文。
+- **对话模板**：对话模型会把 system、user、assistant、tool 等角色编码进固定格式，
+  而不是简单拼接裸文本。
+- **数据配比**：真实训练通常会混合网页、书籍、代码、数学、合成数据、对话数据和多
+  语言数据，而不是只对一个文本文件滑窗。
+- **去重与污染控制**：重复数据会影响泛化，评测集污染则会让模型看起来比实际更强。
+
+第 2 章的 dataloader 是一个正确的教学最小集，但不是现代 LLM 数据工程的完整形态。
+延续到后面训练循环里的，是一批形状稳定的 `input_ids` 和 `target_ids`。
+
+## Token embedding 是模型参数
+
+第 2.7 节用 `torch.nn.Embedding(vocab_size, output_dim)` 解释 token embedding。它
+是一张可训练的查表矩阵。token ID 是行号，embedding vector 是那一行的参数。训练刚
+开始时，这些向量通常随机初始化；之后它们会随着语言建模 loss 一起被更新。
+
+这里常见的混淆是：LLM 里的 token embedding，和 RAG 系统里常说的 sentence
+embedding、document embedding，不是一回事。
+
+- token embedding 是模型内部参数，服务于 next-token prediction。
+- sentence/document embedding 通常来自另一个编码模型，服务于检索、聚类、相似度计
+  算或重排。
+
+它们都叫 embedding，但训练目标、使用位置和向量含义完全不同。把这两类东西混为一
+谈，是做 LLM 应用时很常见的概念误区。
+
+从模型成本看，embedding matrix 也不是小配件。词表越大，embedding 和输出投影相关
+参数就越多；如果输入 embedding 和输出 LM head 不共享权重，参数量还会继续增加。真
+实模型会在 tokenizer 粒度、词表大小、多语言覆盖、推理成本和训练稳定性之间折中。
+
+```mermaid title="图 8：embedding layer 是按 token ID 查表。"
+flowchart LR
+    Ids["token IDs\n2 / 3 / 5 / 1"]
+    Matrix["embedding matrix\nvocab_size x embedding_dim"]
+    Vecs["token embeddings\n4 x embedding_dim"]
+
+    Ids --> Matrix --> Vecs
+```
+
+用 PyTorch 看，这个查表过程很短。`vocab_size` 决定有多少行，`output_dim` 决定每个
+token 的向量维度。
+
+```python
+input_ids = torch.tensor([2, 3, 5, 1])
+
+vocab_size = 6
+output_dim = 3
+
+torch.manual_seed(123)
+embedding_layer = torch.nn.Embedding(vocab_size, output_dim)
+token_embeddings = embedding_layer(input_ids)
+
+print(token_embeddings.shape)
+# torch.Size([4, 3])
+```
+
+## 位置编码处理顺序信息
+
+第 2.8 节说 GPT 模型使用可训练的 absolute positional embeddings。这个说法放在
+GPT-2/GPT-3 的语境里没有问题，也很适合解释“为什么 token embedding 还需要位置信
+息”。但如果把它推广到今天所有 GPT-like LLM，就不够准确了。
+
+现代长上下文模型大量使用 RoPE 及其变体，也会采用其他相对位置或偏置机制。RoPE 的
+直觉是把位置信息编码进 query/key 的旋转相位，而不是简单给 token embedding 加一个
+按绝对位置查表得到的向量。到 2026 年，仍然有论文专门分析 RoPE 在长上下文下的基频
+选择和位置相干性。对长上下文 Transformer 来说，这已经是模型设计里的工程问题。
+
+位置编码之所以更值得重视，是因为上下文窗口已经从教材里常见的几百、几千 token，扩
+展到 128K、1M 甚至更长。OpenAI 的 GPT-4.1 API 文档显示其上下文窗口为 1,047,576
+token，Meta 的 Llama 3.1 模型卡也列出 128K context length。这些数字会反过来要求
+tokenizer、位置编码、注意力实现、KV cache 和评估方法一起升级。
+
+长上下文不等于无限记忆。实际系统里还要考虑：
+
+- 输入、输出和推理过程中的中间 token 共享上下文预算。
+- 长上下文检索并不是均匀可靠，仍需要专门测试 needle、multi-hop 和 lost-in-the-middle。
+- KV cache 显存会随序列长度增长，部署成本很快成为瓶颈。
+- 对许多任务，RAG、摘要压缩和结构化索引仍然比直接塞满上下文更可靠。
+
+我会把原文这一节理解为：**token embedding 必须带上位置信息；absolute positional
+embedding 是理解 GPT-2/GPT-3 的好入口；而现代长上下文 LLM 更常讨论的是 RoPE、位
+置缩放、相对位置偏置，以及推理时的 KV cache 约束。**
+
+```mermaid title="图 9：token embedding 加上 positional embedding 后才是模型输入。"
+flowchart LR
+    Text["输入文本"]
+    Tok["Tokenization"]
+    Ids["Token IDs"]
+    TokenEmb["Token embeddings"]
+    PosEmb["Positional embeddings"]
+    Add["逐位置相加"]
+    InputEmb["Input embeddings"]
+    Model["GPT-like Transformer"]
+
+    Text --> Tok --> Ids --> TokenEmb --> Add
+    PosEmb --> Add --> InputEmb --> Model
+```
+
+原书用可训练的 absolute positional embeddings 做示例。代码上的关键点是：
+`pos_embedding_layer` 的行数等于 `context_length`，列数要和 token embedding 的维
+度一致。这样二者才能相加。
+
+```python
+vocab_size = 50257
+output_dim = 256
+max_length = 4
+
+token_embedding_layer = torch.nn.Embedding(vocab_size, output_dim)
+pos_embedding_layer = torch.nn.Embedding(max_length, output_dim)
+
+token_embeddings = token_embedding_layer(inputs)
+pos_embeddings = pos_embedding_layer(torch.arange(max_length))
+input_embeddings = token_embeddings + pos_embeddings
+
+print(input_embeddings.shape)
+# torch.Size([batch_size, max_length, output_dim])
+```
+
+## 实现输入管线时检查这些点
+
+如果要自己实现一个小型 LLM，我会用下面这份清单检查输入管线：
+
+1. tokenizer 是否和训练、评估、推理阶段完全一致？
+2. 特殊 token 是否覆盖文档边界、padding、对话角色和工具调用边界？
+3. `input_ids` 和 `target_ids` 是否严格右移一位？
+4. batch 内 padding 是否被 attention mask 和 loss mask 正确忽略？
+5. `max_length`、`stride` 和 document packing 是否符合训练目标，而不是只为了方便？
+6. position encoding 支持的最大长度是否和模型配置、训练长度、推理长度一致？
+7. token 计数是否用目标模型的真实 tokenizer，而不是用旧的 `gpt2` 近似？
+8. 多语言、代码、数字、URL、emoji 和专有名词的 token 膨胀是否被实际测过？
+
+LLM 的训练入口不是文字本身，而是一套离散序列协议。tokenizer、special tokens、
+sampling、embedding 和 position encoding 共同定义了这套协议。
+
+## 参考资料
+
+- Sebastian Raschka, _Build a Large Language Model (From Scratch)_, Chapter 2,
+  "Working with text data".
+- OpenAI, [`tiktoken` README](https://github.com/openai/tiktoken/blob/main/README.md)
+  与 [`tiktoken/model.py`](https://github.com/openai/tiktoken/blob/main/tiktoken/model.py)。
+- OpenAI, [GPT-4.1 API model documentation](https://platform.openai.com/docs/models/gpt-4.1)
+  和 [Introducing GPT-4.1 in the API](https://openai.com/index/gpt-4-1/)。
+- Meta, [Llama 3.1 model card](https://github.com/meta-llama/llama-models/blob/main/models/llama3_1/MODEL_CARD.md)。
+- Artidoro Pagnoni et al., [Byte Latent Transformer: Patches Scale Better Than Tokens](https://arxiv.org/abs/2412.09871)。
+- Seokjae Lee and A. Nicki Washington, [Rotary Positional Embeddings as Phase Modulation](https://arxiv.org/abs/2602.10959)。
