@@ -27,12 +27,17 @@ export interface PostHeading {
 }
 
 interface GetPostsOptions {
-  archive?: boolean;
   includeDrafts?: boolean;
 }
 
 const postsDirectory = path.join(process.cwd(), "content/posts");
-export const POSTS_PER_PAGE = 5;
+export const FEATURED_POSTS_LIMIT = 3;
+export const RECENT_POSTS_LIMIT = 3;
+
+interface GetRecentPostsOptions {
+  excludeIds?: Iterable<string>;
+  limit?: number;
+}
 
 export function getPosts(options: GetPostsOptions = {}) {
   const includeDrafts = options.includeDrafts ?? process.env.NODE_ENV !== "production";
@@ -40,24 +45,37 @@ export function getPosts(options: GetPostsOptions = {}) {
   const visiblePosts = includeDrafts ? posts : posts.filter((post) => !post.data.draft);
 
   visiblePosts.sort((a, b) => {
-    const aDate = options.archive
-      ? a.data.pubDate
-      : (a.data.modDate ?? a.data.pubDate);
-    const bDate = options.archive
-      ? b.data.pubDate
-      : (b.data.modDate ?? b.data.pubDate);
+    const aDate = a.data.modDate ?? a.data.pubDate;
+    const bDate = b.data.modDate ?? b.data.pubDate;
     return dateValue(bDate) - dateValue(aDate);
   });
 
   return visiblePosts;
 }
 
-export function getHomePosts() {
+export function getPostIndexPosts() {
   return getPosts().sort((a, b) => {
     if (a.data.pin && !b.data.pin) return -1;
     if (!a.data.pin && b.data.pin) return 1;
     return 0;
   });
+}
+
+export function getFeaturedPosts(limit = FEATURED_POSTS_LIMIT) {
+  return getPostIndexPosts()
+    .filter((post) => post.data.pin)
+    .slice(0, limit);
+}
+
+export function getRecentPosts({
+  excludeIds = [],
+  limit = RECENT_POSTS_LIMIT,
+}: GetRecentPostsOptions = {}) {
+  const excluded = new Set(excludeIds);
+
+  return getPosts()
+    .filter((post) => !excluded.has(post.id))
+    .slice(0, limit);
 }
 
 export function getPost(slug: string) {
@@ -120,23 +138,6 @@ export function formatDate(date: string, format = "YYYY-MM-DD") {
   const day = String(value.getDate()).padStart(2, "0");
 
   return format.replace("YYYY", year).replace("MM", month).replace("DD", day);
-}
-
-export function paginatePosts(posts: Post[], page: number) {
-  const lastPage = Math.max(1, Math.ceil(posts.length / POSTS_PER_PAGE));
-  const start = (page - 1) * POSTS_PER_PAGE;
-
-  return {
-    posts: posts.slice(start, start + POSTS_PER_PAGE),
-    currentPage: page,
-    lastPage,
-    prevUrl: page > 1 ? getPageUrl(page - 1) : undefined,
-    nextUrl: page < lastPage ? getPageUrl(page + 1) : undefined,
-  };
-}
-
-export function getPageUrl(page: number) {
-  return page <= 1 ? "/" : `/${page}`;
 }
 
 function readPostDirectory(directory: string) {

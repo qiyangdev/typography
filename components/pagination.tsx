@@ -2,38 +2,8 @@ import Link from "next/link";
 import { translate } from "@/lib/i18n";
 import { getAdjacentPosts } from "@/lib/posts";
 
-interface PaginationProps {
-  currentPage: number;
-  totalPage: number;
-  prevUrl?: string;
-  nextUrl?: string;
-}
-
 interface PostPaginationProps {
   slug: string;
-}
-
-export function Pagination({
-  currentPage,
-  totalPage,
-  prevUrl,
-  nextUrl,
-}: PaginationProps) {
-  return (
-    <footer className="mt-5">
-      <div className="mb-2.5">
-        {translate("page_number", currentPage)}
-        {" "}
-        /
-        {" "}
-        {translate("page_count", totalPage)}
-      </div>
-      <PaginationLinks
-        left={prevUrl ? { title: translate("prev"), url: prevUrl } : undefined}
-        right={nextUrl ? { title: translate("next"), url: nextUrl } : undefined}
-      />
-    </footer>
-  );
 }
 
 export function PostPagination({ slug }: PostPaginationProps) {

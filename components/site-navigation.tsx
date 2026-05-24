@@ -5,12 +5,12 @@ import { SocialIcon } from "@/components/social-icon";
 
 const navLinks = [
   {
-    name: "Posts",
+    name: "Home",
     href: "/",
   },
   {
-    name: "Archive",
-    href: "/archive",
+    name: "Posts",
+    href: "/posts",
   },
   {
     name: "Categories",

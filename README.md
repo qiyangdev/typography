@@ -20,8 +20,8 @@ content and rendering pipeline with local MDX and the Next.js App Router.
 
 ## Features
 
-- App Router pages for the post index, pagination, post details, archive,
-  categories, about page, and Atom feed.
+- App Router pages for the featured/recent-post home page, all-post index, post
+  details, categories, about page, and Atom feed.
 - Local MDX posts in `content/posts` with frontmatter, GFM, LaTeX, Mermaid, and
   fenced code blocks.
 - Shiki-powered code highlighting with light and dark themes.
@@ -73,7 +73,8 @@ Fields:
 - `slug`: Optional post path override. When missing, it is generated from the
   MDX file name.
 - `draft`: Optional. `draft: true` posts are hidden in production.
-- `pin`: Optional. Pinned posts are shown earlier on the home page.
+- `pin`: Optional. Pinned posts are shown in the featured section and earlier
+  on the all-post index.
 - `banner`: Optional image for Open Graph and Twitter metadata.
 
 ## Internationalization
@@ -85,10 +86,10 @@ Built-in locales: `zh-cn`, `en-us`, `zh-tw`, `ja-jp`, `it-it`.
 
 ## Routes
 
-- `/`: Home post index.
-- `/:page`: Paginated post index.
+- `/`: Home page with pinned featured posts, when present, and the latest three
+  recent posts.
+- `/posts`: All-post index.
 - `/posts/:slug`: Post detail page.
-- `/archive`: Year archive.
 - `/categories`: Category index.
 - `/categories/:category`: Category post list.
 - `/about`

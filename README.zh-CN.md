@@ -19,7 +19,8 @@ Router。
 
 ## 功能
 
-- App Router 路由：文章列表、分页、文章详情、归档、分类、关于页和 Atom Feed。
+- App Router 路由：首页精选/最近文章、所有文章列表、文章详情、分类、关于页和
+  Atom Feed。
 - 本地 MDX 内容：文章放在 `content/posts`，支持 frontmatter、GFM、LaTeX、
   Mermaid 和代码块。
 - 代码高亮：使用 Shiki，并跟随浅色/深色主题切换。
@@ -66,7 +67,7 @@ pin: false
 - `description`：可选，列表页和元信息描述；缺省时从正文截取。
 - `slug`：可选，文章路径覆盖值；不写时会从 MDX 文件名生成。
 - `draft`：可选，生产环境会隐藏 `draft: true` 的文章。
-- `pin`：可选，置顶文章会在首页靠前显示。
+- `pin`：可选，置顶文章会出现在首页精选区域，并在所有文章列表靠前显示。
 - `banner`：可选，用于 Open Graph / Twitter 图片。
 
 ## Internationalization
@@ -78,10 +79,9 @@ pin: false
 
 ## Routes
 
-- `/`：首页文章列表
-- `/:page`：分页文章列表
+- `/`：首页在存在置顶文章时显示精选文章，并显示最新 3 篇最近文章
+- `/posts`：所有文章列表
 - `/posts/:slug`：文章详情
-- `/archive`：按年份归档
 - `/categories`：分类列表
 - `/categories/:category`：分类文章列表
 - `/about`
