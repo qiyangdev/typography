@@ -21,17 +21,17 @@ export function PostMeta({ post, linkedTitle = true }: PostMetaProps) {
         )}
       </h1>
       <div className="text-[14px] leading-[24.5px]">
-        <span>{translate("posted_at")}</span>
-        {" "}
-        <time dateTime={post.data.pubDate}>{formatDate(post.data.pubDate)}</time>
         {post.data.modDate ? (
           <>
-            {" "}
             <span>{translate("updated_at")}</span>
             {" "}
             <time dateTime={post.data.modDate}>{formatDate(post.data.modDate)}</time>
+            {" "}
           </>
         ) : null}
+        <span>{translate("posted_at")}</span>
+        {" "}
+        <time dateTime={post.data.pubDate}>{formatDate(post.data.pubDate)}</time>
         {" "}
         {post.data.categories.map((category) => (
           <PostCategory key={category} category={category} />

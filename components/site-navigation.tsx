@@ -13,6 +13,10 @@ const navLinks = [
     href: "/posts",
   },
   {
+    name: "Search",
+    href: "/search",
+  },
+  {
     name: "Categories",
     href: "/categories",
   },
@@ -29,7 +33,7 @@ const socialLinks = [
   },
   {
     name: "rss",
-    href: "/atom.xml",
+    href: "/subscribe",
   },
   {
     name: "x",

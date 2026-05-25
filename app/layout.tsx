@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { PageTransition } from "@/components/page-transition";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteNavigation } from "@/components/site-navigation";
@@ -75,7 +76,9 @@ export default function RootLayout({
           storageKey="typography-theme"
         >
           <ThemeKeyboardShortcut />
-          <PageTransition />
+          <Suspense fallback={null}>
+            <PageTransition />
+          </Suspense>
           <header className="transition-swup-header m-7.5 flex flex-col gap-2.5 lg:col-[2/3] lg:row-[1/2] lg:mx-0 lg:mb-4 lg:mt-20 lg:items-start lg:justify-between">
             <SiteTitle />
             <SiteNavigation />

@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { MouseEvent, useEffect, useRef } from "react";
 
 const transitionDuration = 500;
@@ -13,7 +13,9 @@ type PageTransitionNavigateDetail =
 
 export function PageTransition() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const router = useRouter();
+  const routeKey = `${pathname}?${searchParams.toString()}`;
   const pendingTransition = useRef(false);
   const fallbackTimer = useRef<number | undefined>(undefined);
 
@@ -130,7 +132,7 @@ export function PageTransition() {
         pendingTransition.current = false;
       });
     });
-  }, [pathname]);
+  }, [routeKey]);
 
   return null;
 }

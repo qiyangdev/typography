@@ -19,7 +19,7 @@ Router。
 
 ## 功能
 
-- App Router 路由：首页精选/最近文章、所有文章列表、文章详情、分类、关于页和
+- App Router 路由：首页精选/最近文章、所有文章列表、文章详情、搜索、订阅页、分类、关于页和
   Atom Feed。
 - 本地 MDX 内容：文章放在 `content/posts`，支持 frontmatter、GFM、LaTeX、
   Mermaid 和代码块。
@@ -81,6 +81,8 @@ pin: false
 
 - `/`：首页在存在置顶文章时显示精选文章，并显示最新 3 篇最近文章
 - `/posts`：所有文章列表
+- `/search`：搜索文章标题、分类、摘要、小标题和正文
+- `/subscribe`：订阅页，显示 Atom 订阅链接、复制按钮和订阅内容预览
 - `/posts/:slug`：文章详情
 - `/categories`：分类列表
 - `/categories/:category`：分类文章列表

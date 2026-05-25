@@ -21,7 +21,7 @@ content and rendering pipeline with local MDX and the Next.js App Router.
 ## Features
 
 - App Router pages for the featured/recent-post home page, all-post index, post
-  details, categories, about page, and Atom feed.
+  details, search, subscription page, categories, about page, and Atom feed.
 - Local MDX posts in `content/posts` with frontmatter, GFM, LaTeX, Mermaid, and
   fenced code blocks.
 - Shiki-powered code highlighting with light and dark themes.
@@ -89,6 +89,10 @@ Built-in locales: `zh-cn`, `en-us`, `zh-tw`, `ja-jp`, `it-it`.
 - `/`: Home page with pinned featured posts, when present, and the latest three
   recent posts.
 - `/posts`: All-post index.
+- `/search`: Search across post titles, categories, summaries, headings, and
+  body text.
+- `/subscribe`: Subscription page with the Atom feed link, copy action, and
+  feed content preview.
 - `/posts/:slug`: Post detail page.
 - `/categories`: Category index.
 - `/categories/:category`: Category post list.

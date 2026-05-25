@@ -127,6 +127,23 @@ export function getPostDescription(post: Post) {
   return stripMarkup(post.body).slice(0, 400);
 }
 
+export function searchPosts(query: string) {
+  const terms = normalizeSearchQuery(query);
+
+  if (terms.length === 0) {
+    return [];
+  }
+
+  return getPostIndexPosts()
+    .map((post) => ({
+      post,
+      score: getSearchScore(post, terms),
+    }))
+    .filter(({ score }) => score > 0)
+    .sort((a, b) => b.score - a.score)
+    .map(({ post }) => post);
+}
+
 export function getPathFromCategory(category: string) {
   return slugify(category);
 }
@@ -262,6 +279,31 @@ function normalizePathSegment(value: string) {
   } catch {
     return value;
   }
+}
+
+function normalizeSearchQuery(query: string) {
+  return query
+    .trim()
+    .toLowerCase()
+    .split(/\s+/)
+    .filter(Boolean);
+}
+
+function getSearchScore(post: Post, terms: string[]) {
+  const title = post.data.title.toLowerCase();
+  const categories = post.data.categories.join(" ").toLowerCase();
+  const summary = getPostDescription(post).toLowerCase();
+  const headings = post.headings.map((heading) => heading.text).join(" ").toLowerCase();
+  const body = stripMarkup(post.body).toLowerCase();
+
+  return terms.reduce((score, term) => {
+    if (title.includes(term)) score += 8;
+    if (categories.includes(term)) score += 5;
+    if (summary.includes(term)) score += 4;
+    if (headings.includes(term)) score += 3;
+    if (body.includes(term)) score += 1;
+    return score;
+  }, 0);
 }
 
 function dateValue(date: string) {
