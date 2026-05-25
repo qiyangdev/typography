@@ -1,8 +1,4 @@
-import { translate } from "@/lib/i18n";
-import { formatDate } from "@/lib/posts";
-
 const title = "关于";
-const pubDate = "2026-05-18";
 
 export default function AboutPage() {
   return (
@@ -11,10 +7,6 @@ export default function AboutPage() {
         <h1 className="post-title">
           <span className="not-prose">{title}</span>
         </h1>
-        <div className="text-sm">
-          <span>{translate("posted_at")}</span>{" "}
-          <time dateTime={pubDate}>{formatDate(pubDate)}</time>
-        </div>
       </header>
       <article className="prose">
         <p>
