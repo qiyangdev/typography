@@ -4,29 +4,59 @@ interface SocialIconProps {
   name: string;
 }
 
-const socialIconPaths: Record<string, string> = {
-  github: "/github.svg",
-  rss: "/rss.svg",
-  twitter: "/x.svg",
-  x: "/x.svg",
+const socialIconConfigs: Record<
+  string,
+  {
+    path: string;
+    size: string;
+  }
+> = {
+  github: {
+    path: "/github.svg",
+    size: "18px",
+  },
+  email: {
+    path: "/mail.svg",
+    size: "20px",
+  },
+  mail: {
+    path: "/mail.svg",
+    size: "20px",
+  },
+  rss: {
+    path: "/rss.svg",
+    size: "22px",
+  },
+  twitter: {
+    path: "/x.svg",
+    size: "18px",
+  },
+  x: {
+    path: "/x.svg",
+    size: "18px",
+  },
 };
 
 export function SocialIcon({ name }: SocialIconProps) {
   const normalizedName = name.toLowerCase();
-  const iconPath = socialIconPaths[normalizedName];
+  const icon = socialIconConfigs[normalizedName];
 
-  if (!iconPath) {
-    return <span aria-hidden="true">{normalizedName.slice(0, 1).toUpperCase()}</span>;
+  if (!icon) {
+    return (
+      <span aria-hidden="true">{normalizedName.slice(0, 1).toUpperCase()}</span>
+    );
   }
 
   return (
     <span
       aria-hidden="true"
-      className="block h-4 w-4 bg-current"
+      className="block bg-current"
       style={
         {
-          mask: `url(${iconPath}) center / contain no-repeat`,
-          WebkitMask: `url(${iconPath}) center / contain no-repeat`,
+          height: icon.size,
+          mask: `url(${icon.path}) center / contain no-repeat`,
+          WebkitMask: `url(${icon.path}) center / contain no-repeat`,
+          width: icon.size,
         } satisfies CSSProperties
       }
     />

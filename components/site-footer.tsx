@@ -2,6 +2,10 @@ import type { ReactNode } from "react";
 import { site } from "@/lib/site";
 
 const footer = {
+  source: {
+    prefix: "项目开源于",
+    label: "GitHub",
+  },
   build: {
     prefix: "由",
     suffix: "构建",
@@ -42,6 +46,10 @@ export function SiteFooter() {
       <p className={lineClassName}>
         © {year}{" "}
         <FooterLink href={site.author.website}>{site.author.name}</FooterLink>
+      </p>
+      <p className={lineClassName}>
+        {footer.source.prefix}{" "}
+        <FooterLink href={site.repository}>{footer.source.label}</FooterLink>
       </p>
       <p className={lineClassName}>
         {footer.build.prefix}{" "}

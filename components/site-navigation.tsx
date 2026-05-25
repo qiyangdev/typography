@@ -32,12 +32,16 @@ const socialLinks = [
     href: site.social.github,
   },
   {
+    name: "x",
+    href: site.social.x,
+  },
+  {
     name: "rss",
     href: "/subscribe",
   },
   {
-    name: "x",
-    href: site.social.x,
+    name: "email",
+    href: site.social.email,
   },
 ] as const;
 
