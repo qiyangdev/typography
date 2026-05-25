@@ -31,6 +31,19 @@ Router。
 - 中文 slug：文章路径可以使用中文，URL 编码后也能正常匹配。
 - 轻量页面切换动画，贴近原主题的浏览感受。
 
+## 技术栈
+
+- 框架：Next.js 16 App Router、React 19 和 TypeScript 5。
+- 样式：Tailwind CSS 4，通过 `@tailwindcss/postcss` 接入，站点样式集中在
+  `app/globals.css`。
+- 内容：`content/posts` 中的本地 `.mdx` 文章，通过 `@next/mdx`、
+  `@mdx-js/loader` 和自定义 remark/rehype 插件渲染。
+- Markdown 扩展：`remark-frontmatter`、`remark-gfm`、`remark-math`、
+  `rehype-katex`、Mermaid 与 Shiki。
+- 界面行为：`next-themes` 负责跟随系统的深色模式，必要的交互由客户端组件完成。
+- 订阅与元信息：`feed` 生成 Atom 输出，并使用 App Router metadata 和动态社交图片。
+- 工具链：Bun 脚本、ESLint 9、`eslint-config-next` 和严格 TypeScript。
+
 ## Run
 
 ```bash

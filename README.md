@@ -33,6 +33,22 @@ content and rendering pipeline with local MDX and the Next.js App Router.
 - Unicode slugs, including Chinese slugs, with encoded URL matching.
 - Lightweight page transitions that mirror the original theme's feel.
 
+## Tech Stack
+
+- Framework: Next.js 16 App Router with React 19 and TypeScript 5.
+- Styling: Tailwind CSS 4 through `@tailwindcss/postcss`, with site styles in
+  `app/globals.css`.
+- Content: local `.mdx` posts under `content/posts`, rendered through
+  `@next/mdx`, `@mdx-js/loader`, and custom remark/rehype plugins.
+- Markdown extensions: `remark-frontmatter`, `remark-gfm`, `remark-math`,
+  `rehype-katex`, Mermaid, and Shiki.
+- UI behavior: `next-themes` for system-aware dark mode and lightweight client
+  interactions where needed.
+- Feed and metadata: `feed` for Atom output, plus App Router metadata and
+  generated social images.
+- Tooling: Bun scripts, ESLint 9 with `eslint-config-next`, and strict
+  TypeScript.
+
 ## Run
 
 ```bash
