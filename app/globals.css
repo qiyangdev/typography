@@ -308,10 +308,33 @@ svg {
   margin: 0;
 }
 
+.prose .code-block {
+  position: relative;
+  margin-top: 24px;
+  margin-bottom: 24px;
+}
+
+.prose .code-block-copy-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 1;
+  padding: 2px 8px;
+  font-size: 12px;
+  line-height: 20px;
+  text-shadow: none;
+  background-color: color-mix(
+    in srgb,
+    var(--site-background),
+    transparent 10%
+  );
+}
+
 .prose pre {
   overflow-x: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--site-primary), transparent 48%)
+    transparent;
   margin-top: 24px;
   margin-bottom: 24px;
   border-radius: 6px;
@@ -323,8 +346,25 @@ svg {
   background: #282a36;
 }
 
+.prose .code-block pre {
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-right: 78px;
+}
+
 .prose pre::-webkit-scrollbar {
-  display: none;
+  height: 8px;
+}
+
+.prose pre::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.prose pre::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background-color: color-mix(in srgb, var(--site-primary), transparent 48%);
+  background-clip: content-box;
 }
 
 .prose pre.shiki {

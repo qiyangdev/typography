@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 
 interface CopyButtonProps {
   value: string;
@@ -8,16 +8,30 @@ interface CopyButtonProps {
     copy: string;
     copied: string;
   };
+  className?: string;
+  style?: CSSProperties;
 }
 
-export function CopyButton({ value, labels }: CopyButtonProps) {
+export function CopyButton({ value, labels, className, style }: CopyButtonProps) {
   const [copied, setCopied] = useState(false);
+  const buttonClassName = ["copy-button", className].filter(Boolean).join(" ");
 
   async function handleClick() {
+    let didCopy = false;
+
     try {
-      await navigator.clipboard.writeText(value);
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(value);
+        didCopy = true;
+      } else {
+        didCopy = copyWithSelection(value);
+      }
     } catch {
-      copyWithSelection(value);
+      didCopy = copyWithSelection(value);
+    }
+
+    if (!didCopy) {
+      return;
     }
 
     setCopied(true);
@@ -25,7 +39,12 @@ export function CopyButton({ value, labels }: CopyButtonProps) {
   }
 
   return (
-    <button type="button" className="copy-button" onClick={handleClick}>
+    <button
+      type="button"
+      className={buttonClassName}
+      style={style}
+      onClick={handleClick}
+    >
       {copied ? labels.copied : labels.copy}
     </button>
   );
@@ -40,6 +59,7 @@ function copyWithSelection(value: string) {
   textarea.style.left = "-9999px";
   document.body.append(textarea);
   textarea.select();
-  document.execCommand("copy");
+  const didCopy = document.execCommand("copy");
   textarea.remove();
+  return didCopy;
 }
