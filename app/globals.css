@@ -644,6 +644,44 @@ svg {
   background-color: var(--site-primary);
 }
 
+.search-results .post-title,
+.search-results .prose,
+.search-empty-state {
+  animation: search-result-enter 560ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.search-results .post-title {
+  animation-delay: 40ms;
+}
+
+.search-results .prose:nth-of-type(1) {
+  animation-delay: 120ms;
+}
+
+.search-results .prose:nth-of-type(2) {
+  animation-delay: 190ms;
+}
+
+.search-results .prose:nth-of-type(3) {
+  animation-delay: 260ms;
+}
+
+.search-results .prose:nth-of-type(4) {
+  animation-delay: 330ms;
+}
+
+.search-results .prose:nth-of-type(5) {
+  animation-delay: 400ms;
+}
+
+.search-results .prose:nth-of-type(n + 6) {
+  animation-delay: 470ms;
+}
+
+.search-empty-state {
+  animation-delay: 80ms;
+}
+
 .subscribe-links {
   display: flex;
   width: 100%;
@@ -790,6 +828,12 @@ svg {
   .prose .post-toc details::details-content {
     transition: none;
   }
+
+  .search-results .post-title,
+  .search-results .prose,
+  .search-empty-state {
+    animation: none;
+  }
 }
 
 html.is-animating .transition-swup-main {
@@ -842,6 +886,17 @@ html.animation-prepared .transition-swup-main {
   100% {
     opacity: 1;
     transform: translateX(0);
+  }
+}
+
+@keyframes search-result-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 

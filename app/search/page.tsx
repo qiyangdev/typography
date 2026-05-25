@@ -32,11 +32,13 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       {query ? (
         posts.length > 0 ? (
           <PostIndex
+            key={query}
+            className="search-results"
             posts={posts}
             title={translate("search_results_count", posts.length)}
           />
         ) : (
-          <p>{translate("no_search_results")}</p>
+          <p className="search-empty-state">{translate("no_search_results")}</p>
         )
       ) : null}
     </section>
