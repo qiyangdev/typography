@@ -339,24 +339,6 @@ flowchart LR
 覆盖 `context_length`，向量维度要和 token embedding 一致。这样每个位置的 token
 embedding 才能和对应的 positional embedding 相加，形成最终输入。
 
-## 实现输入管线时检查这些点
-
-如果要自己实现一个小型 LLM，我会用下面这份清单检查输入管线：
-
-1. tokenizer 是否和训练、评估、推理阶段完全一致？
-2. 特殊 token 是否覆盖文档边界、padding、对话角色和工具调用边界？
-3. `input_ids` 和 `target_ids` 是否严格右移一位？
-4. batch 内 padding 是否被 attention mask 和 loss mask 正确忽略？
-5. `max_length`、`stride` 和 document packing 是否符合训练目标，而不是只为了方便？
-6. position encoding 支持的最大长度是否和模型配置、训练长度、推理长度一致？
-7. token 计数是否用目标模型的真实 tokenizer，而不是用旧的 `gpt2` 近似？
-8. 多语言、代码、数字、URL、emoji 和专有名词的 token 膨胀是否被实际测过？
-9. 工具调用、结构化输出、schema 首次处理延迟和并行 tool call 限制是否被纳入预算？
-10. reasoning/thinking token 是否预留了足够输出空间，而不是只按最终可见回答估算？
-
-LLM 的训练入口不是文字本身，而是一套离散序列协议。tokenizer、special tokens、
-sampling、embedding 和 position encoding 共同定义了这套协议。
-
 ## 参考资料
 
 - Sebastian Raschka, _Build a Large Language Model (From Scratch)_, Chapter 2,
