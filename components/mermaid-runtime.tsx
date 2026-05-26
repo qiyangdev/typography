@@ -30,14 +30,6 @@ interface DiagramTransform {
   scale: number;
 }
 
-interface DragState {
-  pointerId: number;
-  startX: number;
-  startY: number;
-  originX: number;
-  originY: number;
-}
-
 const viewerIcons = {
   check: Check,
   preview: MoveHorizontal,
@@ -157,7 +149,6 @@ function enhanceMermaidViewer(
   const controls = document.createElement("div");
   const iconRoots: Root[] = [];
   let transform: DiagramTransform = { x: 0, y: 0, scale: 1 };
-  let dragState: DragState | null = null;
 
   chart.classList.remove("mermaid");
   chart.removeAttribute("role");
@@ -305,50 +296,6 @@ function enhanceMermaidViewer(
   iconRootsByChart.set(chart, iconRoots);
   renderTransform();
 
-  viewer.addEventListener("pointerdown", (event) => {
-    if (isControlTarget(event.target)) {
-      return;
-    }
-
-    dragState = {
-      pointerId: event.pointerId,
-      startX: event.clientX,
-      startY: event.clientY,
-      originX: transform.x,
-      originY: transform.y,
-    };
-
-    viewer.classList.add("is-dragging");
-    viewer.setPointerCapture(event.pointerId);
-  });
-
-  viewer.addEventListener("pointermove", (event) => {
-    if (!dragState || dragState.pointerId !== event.pointerId) {
-      return;
-    }
-
-    setTransform({
-      ...transform,
-      x: dragState.originX + event.clientX - dragState.startX,
-      y: dragState.originY + event.clientY - dragState.startY,
-    });
-  });
-
-  viewer.addEventListener("pointerup", (event) => {
-    if (!dragState || dragState.pointerId !== event.pointerId) {
-      return;
-    }
-
-    dragState = null;
-    viewer.classList.remove("is-dragging");
-    viewer.releasePointerCapture(event.pointerId);
-  });
-
-  viewer.addEventListener("pointercancel", () => {
-    dragState = null;
-    viewer.classList.remove("is-dragging");
-  });
-
   viewer.addEventListener("keydown", (event) => {
     if (event.key === "ArrowUp") {
       event.preventDefault();
@@ -392,7 +339,7 @@ function openPreviewDialog(source: string, svgMarkup: string) {
   previewChart.innerHTML = svgMarkup;
 
   const closeButton = createIconButton({
-    className: "mermaid-preview-close",
+    className: "mermaid-viewer-button mermaid-preview-close",
     icon: "close",
     label: "Close preview",
     iconRoots: dialogIconRoots,
@@ -564,10 +511,6 @@ function removeExternalFontImports(svg: string) {
     /\s*@import url\('https:\/\/fonts\.googleapis\.com\/css2\?[^']+'\);/g,
     "",
   );
-}
-
-function isControlTarget(target: EventTarget | null) {
-  return target instanceof Element && target.closest(".mermaid-viewer-button");
 }
 
 function clamp(value: number, min: number, max: number) {

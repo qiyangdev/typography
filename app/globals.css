@@ -536,18 +536,13 @@ svg {
   align-items: center;
   justify-content: center;
   min-height: inherit;
-  cursor: grab;
-  touch-action: none;
+  cursor: default;
   user-select: none;
 }
 
 .mermaid-viewer:focus-visible {
   outline: 2px solid color-mix(in srgb, var(--site-primary), transparent 25%);
   outline-offset: -3px;
-}
-
-.mermaid-viewer.is-dragging {
-  cursor: grabbing;
 }
 
 .mermaid-viewer-canvas {
@@ -567,10 +562,6 @@ svg {
   max-width: 100%;
   max-height: 100%;
   height: auto;
-}
-
-.mermaid-viewer.is-dragging .mermaid-viewer-canvas {
-  transition: none;
 }
 
 .mermaid-viewer-toolbar,
@@ -740,40 +731,20 @@ svg {
 
 .mermaid-preview-close {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 12px;
+  right: 12px;
   z-index: 4;
-  display: inline-grid;
-  place-items: center;
-  width: 30px;
-  height: 30px;
-  border: 0;
-  border-radius: 6px;
-  padding: 0;
-  color: color-mix(in srgb, var(--site-primary), transparent 18%);
-  text-shadow: none;
-  background: transparent;
-  cursor: pointer;
 }
 
 .mermaid-preview-close:hover,
 .mermaid-preview-close:focus-visible {
+  border-color: color-mix(in srgb, var(--site-primary), transparent 48%);
   color: var(--site-primary);
   background-color: color-mix(
     in srgb,
     var(--site-background),
     var(--site-primary) 10%
   );
-}
-
-.mermaid-preview-close:focus-visible {
-  outline: 2px solid color-mix(in srgb, var(--site-primary), transparent 35%);
-  outline-offset: 2px;
-}
-
-.mermaid-preview-close svg {
-  width: 16px;
-  height: 16px;
 }
 
 .mermaid-preview-chart,
