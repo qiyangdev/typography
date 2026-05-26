@@ -1,6 +1,12 @@
 "use client";
 
-import { useState, type CSSProperties } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
 
 interface CopyButtonProps {
   value: string;
@@ -10,11 +16,29 @@ interface CopyButtonProps {
   };
   className?: string;
   style?: CSSProperties;
+  children?: ReactNode;
+  copiedChildren?: ReactNode;
 }
 
-export function CopyButton({ value, labels, className, style }: CopyButtonProps) {
+export function CopyButton({
+  value,
+  labels,
+  className,
+  style,
+  children,
+  copiedChildren,
+}: CopyButtonProps) {
   const [copied, setCopied] = useState(false);
+  const resetTimerRef = useRef<number | null>(null);
   const buttonClassName = ["copy-button", className].filter(Boolean).join(" ");
+
+  useEffect(() => {
+    return () => {
+      if (resetTimerRef.current !== null) {
+        window.clearTimeout(resetTimerRef.current);
+      }
+    };
+  }, []);
 
   async function handleClick() {
     let didCopy = false;
@@ -35,7 +59,15 @@ export function CopyButton({ value, labels, className, style }: CopyButtonProps)
     }
 
     setCopied(true);
-    window.setTimeout(() => setCopied(false), 1600);
+
+    if (resetTimerRef.current !== null) {
+      window.clearTimeout(resetTimerRef.current);
+    }
+
+    resetTimerRef.current = window.setTimeout(() => {
+      setCopied(false);
+      resetTimerRef.current = null;
+    }, 1600);
   }
 
   return (
@@ -43,9 +75,14 @@ export function CopyButton({ value, labels, className, style }: CopyButtonProps)
       type="button"
       className={buttonClassName}
       style={style}
+      aria-label={copied ? labels.copied : labels.copy}
+      title={copied ? labels.copied : labels.copy}
+      data-copied={copied ? "true" : undefined}
       onClick={handleClick}
     >
-      {copied ? labels.copied : labels.copy}
+      {copied
+        ? (copiedChildren ?? children ?? labels.copied)
+        : (children ?? labels.copy)}
     </button>
   );
 }

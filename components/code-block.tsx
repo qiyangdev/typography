@@ -4,6 +4,7 @@ import {
   type CSSProperties,
   type ReactNode,
 } from "react";
+import { Check, Copy } from "lucide-react";
 import { CopyButton } from "@/components/copy-button";
 import { translate } from "@/lib/i18n";
 
@@ -20,9 +21,6 @@ const codeBlockCopyButtonStyle: CSSProperties = {
   top: 8,
   right: 8,
   zIndex: 1,
-  padding: "2px 8px",
-  fontSize: 12,
-  lineHeight: "20px",
   textShadow: "none",
 };
 
@@ -45,7 +43,16 @@ export function CodeBlock({ children, ...props }: CodeBlockProps) {
           copy: translate("copy"),
           copied: translate("copied"),
         }}
-      />
+        copiedChildren={
+          <span className="code-block-copy-icon" aria-hidden="true">
+            <Check focusable="false" />
+          </span>
+        }
+      >
+        <span className="code-block-copy-icon" aria-hidden="true">
+          <Copy focusable="false" />
+        </span>
+      </CopyButton>
       <pre {...props} style={{ ...props.style, ...codeBlockPreStyle }}>
         {children}
       </pre>

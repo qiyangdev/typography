@@ -312,6 +312,15 @@ svg {
   position: relative;
   margin-top: 24px;
   margin-bottom: 24px;
+  border: 1px solid color-mix(in srgb, var(--site-primary), transparent 78%);
+  border-radius: 6px;
+  color: var(--site-primary);
+  text-shadow: none;
+  background-color: color-mix(
+    in srgb,
+    var(--site-background),
+    var(--site-primary) 3%
+  );
 }
 
 .prose .code-block-copy-button {
@@ -319,15 +328,60 @@ svg {
   top: 8px;
   right: 8px;
   z-index: 1;
-  padding: 2px 8px;
-  font-size: 12px;
-  line-height: 20px;
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid color-mix(in srgb, var(--site-primary), transparent 74%);
+  border-radius: 6px;
+  padding: 0;
+  color: color-mix(in srgb, var(--site-primary), transparent 8%);
   text-shadow: none;
+  box-shadow: 0 1px 2px color-mix(in srgb, #000000, transparent 92%);
   background-color: color-mix(
     in srgb,
     var(--site-background),
-    transparent 10%
+    var(--site-primary) 5%
   );
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+.prose .code-block-copy-button:hover,
+.prose .code-block-copy-button:focus-visible {
+  border-color: color-mix(in srgb, var(--site-primary), transparent 48%);
+  color: var(--site-primary);
+  background-color: color-mix(
+    in srgb,
+    var(--site-background),
+    var(--site-primary) 10%
+  );
+}
+
+.prose .code-block-copy-button:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--site-primary), transparent 35%);
+  outline-offset: 2px;
+}
+
+.prose .code-block-copy-button[data-copied="true"] {
+  color: #1a7f37;
+  border-color: color-mix(in srgb, #1a7f37, transparent 35%);
+}
+
+.code-block-copy-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+}
+
+.code-block-copy-icon svg {
+  width: 14px;
+  height: 14px;
 }
 
 .prose pre {
@@ -349,7 +403,9 @@ svg {
 .prose .code-block pre {
   margin-top: 0;
   margin-bottom: 0;
+  border-radius: 6px;
   padding-right: 78px;
+  background: transparent;
 }
 
 .prose pre::-webkit-scrollbar {
@@ -372,9 +428,17 @@ svg {
   background-color: var(--shiki-light-bg);
 }
 
+.prose .code-block pre.shiki {
+  background-color: transparent;
+}
+
 :root.dark .prose pre.shiki {
   color: var(--shiki-dark);
   background-color: var(--shiki-dark-bg);
+}
+
+:root.dark .prose .code-block pre.shiki {
+  background-color: transparent;
 }
 
 .prose pre.shiki span {
@@ -395,27 +459,21 @@ svg {
 
 .mermaid-figure {
   display: flex;
-  overflow: hidden;
+  overflow: visible;
   scrollbar-width: none;
   -ms-overflow-style: none;
   flex-direction: column;
   align-items: stretch;
   margin-top: 24px;
   margin-bottom: 24px;
-  border: 1px solid color-mix(in srgb, var(--site-primary), transparent 78%);
-  border-radius: 6px;
-  padding: 16px;
   color: var(--site-primary);
   text-align: center;
   text-shadow: none;
-  background-color: color-mix(
-    in srgb,
-    var(--site-background),
-    var(--site-primary) 3%
-  );
+  background: transparent;
 }
 
 .mermaid-chart {
+  position: relative;
   overflow-x: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -434,12 +492,15 @@ svg {
   );
 }
 
+.mermaid-chart[data-mermaid-ready="true"] {
+  overflow: hidden;
+  min-height: clamp(220px, 34vw, 320px);
+  padding: 0;
+}
+
 .mermaid-figure .mermaid-chart {
   width: 100%;
   margin: 0;
-  border: 0;
-  padding: 0;
-  background: transparent;
 }
 
 .prose .mermaid-figure .mermaid-caption {
@@ -467,12 +528,283 @@ svg {
   height: auto;
 }
 
+.mermaid-viewer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  overflow: hidden;
+  align-items: center;
+  justify-content: center;
+  min-height: inherit;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.mermaid-viewer:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--site-primary), transparent 25%);
+  outline-offset: -3px;
+}
+
+.mermaid-viewer.is-dragging {
+  cursor: grabbing;
+}
+
+.mermaid-viewer-canvas {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(100% - 48px);
+  height: calc(100% - 48px);
+  transform-origin: center;
+  transition: transform 140ms ease;
+  will-change: transform;
+}
+
+.mermaid-viewer-canvas > svg {
+  width: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  height: auto;
+}
+
+.mermaid-viewer.is-dragging .mermaid-viewer-canvas {
+  transition: none;
+}
+
+.mermaid-viewer-toolbar,
+.mermaid-viewer-controls {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  gap: 5px;
+  pointer-events: none;
+}
+
+.mermaid-viewer-toolbar {
+  top: 12px;
+  right: 12px;
+  grid-auto-flow: column;
+}
+
+.mermaid-viewer-controls {
+  right: 12px;
+  bottom: 12px;
+  grid-template-columns: repeat(3, 30px);
+  grid-template-rows: repeat(3, 30px);
+}
+
+.mermaid-viewer-button {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid color-mix(in srgb, var(--site-primary), transparent 74%);
+  border-radius: 6px;
+  padding: 0;
+  color: color-mix(in srgb, var(--site-primary), transparent 8%);
+  text-shadow: none;
+  background-color: color-mix(
+    in srgb,
+    var(--site-background),
+    var(--site-primary) 5%
+  );
+  box-shadow: 0 1px 2px color-mix(in srgb, #000000, transparent 92%);
+  cursor: pointer;
+  pointer-events: auto;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+.mermaid-viewer-button:hover,
+.mermaid-viewer-button:focus-visible {
+  border-color: color-mix(in srgb, var(--site-primary), transparent 48%);
+  color: var(--site-primary);
+  background-color: color-mix(
+    in srgb,
+    var(--site-background),
+    var(--site-primary) 10%
+  );
+}
+
+.mermaid-viewer-button:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--site-primary), transparent 35%);
+  outline-offset: 2px;
+}
+
+.mermaid-viewer-button[data-copied="true"] {
+  color: #1a7f37;
+  border-color: color-mix(in srgb, #1a7f37, transparent 35%);
+}
+
+.mermaid-viewer-button[data-copy-failed="true"] {
+  color: #c7254e;
+  border-color: color-mix(in srgb, #c7254e, transparent 35%);
+}
+
+.mermaid-viewer-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+}
+
+.mermaid-viewer-button svg {
+  width: 14px;
+  height: 14px;
+}
+
+.mermaid-viewer-button-up {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.mermaid-viewer-button-zoom-in {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+.mermaid-viewer-button-left {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.mermaid-viewer-button-reset {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.mermaid-viewer-button-right {
+  grid-column: 3;
+  grid-row: 2;
+}
+
+.mermaid-viewer-button-down {
+  grid-column: 2;
+  grid-row: 3;
+}
+
+.mermaid-viewer-button-zoom-out {
+  grid-column: 3;
+  grid-row: 3;
+}
+
 .mermaid-chart[data-mermaid-error="true"] {
   color: #c7254e;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 14px;
   line-height: 24px;
   background-color: #f9f2f4;
+}
+
+.mermaid-preview-dialog {
+  position: fixed;
+  top: 50%;
+  right: auto;
+  bottom: auto;
+  left: 50%;
+  width: min(1120px, calc(100vw - 32px));
+  height: min(560px, calc(100vh - 48px));
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 32px);
+  margin: 0;
+  border: 0;
+  padding: 0;
+  color: var(--site-primary);
+  text-shadow: none;
+  background: transparent;
+  transform: translate(-50%, -50%);
+}
+
+.mermaid-preview-dialog::backdrop {
+  background-color: color-mix(in srgb, #000000, transparent 48%);
+}
+
+.mermaid-preview-panel {
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+  border: 1px solid color-mix(in srgb, var(--site-primary), transparent 72%);
+  border-radius: 6px;
+  background-color: color-mix(
+    in srgb,
+    var(--site-background),
+    var(--site-primary) 4%
+  );
+  box-shadow: 0 24px 72px color-mix(in srgb, #000000, transparent 68%);
+}
+
+.mermaid-preview-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 4;
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 6px;
+  padding: 0;
+  color: color-mix(in srgb, var(--site-primary), transparent 18%);
+  text-shadow: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.mermaid-preview-close:hover,
+.mermaid-preview-close:focus-visible {
+  color: var(--site-primary);
+  background-color: color-mix(
+    in srgb,
+    var(--site-background),
+    var(--site-primary) 10%
+  );
+}
+
+.mermaid-preview-close:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--site-primary), transparent 35%);
+  outline-offset: 2px;
+}
+
+.mermaid-preview-close svg {
+  width: 16px;
+  height: 16px;
+}
+
+.mermaid-preview-chart,
+.mermaid-preview-chart[data-mermaid-ready="true"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  margin: 0;
+  border: 0;
+  padding: 0;
+  background: transparent;
+}
+
+.mermaid-preview-chart .mermaid-viewer {
+  min-height: 100%;
+}
+
+.mermaid-preview-chart .mermaid-viewer:focus-visible {
+  outline: none;
+}
+
+.mermaid-preview-chart .mermaid-viewer-canvas {
+  width: calc(100% - 96px);
+  height: calc(100% - 72px);
+}
+
+.mermaid-preview-chart .mermaid-viewer-controls {
+  right: 36px;
+  bottom: 32px;
 }
 
 .prose :where(:not(pre) > code) {
@@ -861,6 +1193,10 @@ svg {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .mermaid-viewer-canvas {
+    transition: none;
+  }
+
   .transition-swup-main {
     scroll-behavior: auto;
   }
