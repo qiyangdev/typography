@@ -23,6 +23,7 @@ const minScale = 0.5;
 const maxScale = 4;
 const zoomStep = 0.2;
 const panStep = 72;
+const previewCloseAnimationMs = 180;
 
 interface DiagramTransform {
   x: number;
@@ -327,9 +328,12 @@ function openPreviewDialog(source: string, svgMarkup: string) {
   const panel = document.createElement("div");
   const previewChart = document.createElement("div");
   const dialogIconRoots: Root[] = [];
+  let isClosing = false;
+  let closeTimer: number | null = null;
 
   dialog.className = "mermaid-preview-dialog";
   dialog.setAttribute("aria-label", "Mermaid diagram preview");
+  dialog.dataset.state = "open";
 
   panel.className = "mermaid-preview-panel";
 
@@ -343,8 +347,24 @@ function openPreviewDialog(source: string, svgMarkup: string) {
     icon: "close",
     label: "Close preview",
     iconRoots: dialogIconRoots,
-    onClick: () => dialog.close(),
+    onClick: closePreview,
   });
+
+  function closePreview() {
+    if (isClosing) {
+      return;
+    }
+
+    isClosing = true;
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      dialog.close();
+      return;
+    }
+
+    dialog.dataset.state = "closing";
+    closeTimer = window.setTimeout(() => dialog.close(), previewCloseAnimationMs);
+  }
 
   panel.append(closeButton, previewChart);
   dialog.append(panel);
@@ -353,13 +373,22 @@ function openPreviewDialog(source: string, svgMarkup: string) {
 
   dialog.addEventListener("click", (event) => {
     if (event.target === dialog) {
-      dialog.close();
+      closePreview();
     }
+  });
+
+  dialog.addEventListener("cancel", (event) => {
+    event.preventDefault();
+    closePreview();
   });
 
   dialog.addEventListener(
     "close",
     () => {
+      if (closeTimer !== null) {
+        window.clearTimeout(closeTimer);
+      }
+
       clearIconRoots(previewChart);
 
       for (const root of dialogIconRoots) {

@@ -715,6 +715,14 @@ svg {
   background-color: color-mix(in srgb, #000000, transparent 48%);
 }
 
+.mermaid-preview-dialog[open]::backdrop {
+  animation: mermaid-preview-backdrop-in 180ms ease-out both;
+}
+
+.mermaid-preview-dialog[data-state="closing"]::backdrop {
+  animation: mermaid-preview-backdrop-out 160ms ease-in both;
+}
+
 .mermaid-preview-panel {
   position: relative;
   overflow: hidden;
@@ -727,6 +735,13 @@ svg {
     var(--site-primary) 4%
   );
   box-shadow: 0 24px 72px color-mix(in srgb, #000000, transparent 68%);
+  transform-origin: center;
+  animation: mermaid-preview-panel-in 200ms cubic-bezier(0.16, 1, 0.3, 1)
+    both;
+}
+
+.mermaid-preview-dialog[data-state="closing"] .mermaid-preview-panel {
+  animation: mermaid-preview-panel-out 160ms ease-in both;
 }
 
 .mermaid-preview-close {
@@ -1168,6 +1183,11 @@ svg {
     transition: none;
   }
 
+  .mermaid-preview-dialog[open]::backdrop,
+  .mermaid-preview-dialog[open] .mermaid-preview-panel {
+    animation: none;
+  }
+
   .transition-swup-main {
     scroll-behavior: auto;
   }
@@ -1233,6 +1253,46 @@ html.animation-prepared .transition-swup-main {
   100% {
     opacity: 1;
     transform: translateX(0);
+  }
+}
+
+@keyframes mermaid-preview-backdrop-in {
+  0% {
+    background-color: color-mix(in srgb, #000000, transparent 100%);
+  }
+  100% {
+    background-color: color-mix(in srgb, #000000, transparent 48%);
+  }
+}
+
+@keyframes mermaid-preview-backdrop-out {
+  0% {
+    background-color: color-mix(in srgb, #000000, transparent 48%);
+  }
+  100% {
+    background-color: color-mix(in srgb, #000000, transparent 100%);
+  }
+}
+
+@keyframes mermaid-preview-panel-in {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes mermaid-preview-panel-out {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.985);
   }
 }
 
